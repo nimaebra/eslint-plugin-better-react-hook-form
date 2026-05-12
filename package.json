@@ -1,0 +1,83 @@
+{
+  "name": "eslint-plugin-better-react-hook-form",
+  "version": "0.1.0",
+  "description": "ESLint rules for safer React Hook Form usage.",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "react-hook-form",
+    "react",
+    "forms"
+  ],
+  "homepage": "https://github.com/nimaebrazeh/eslint-plugin-better-react-hook-form#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nimaebrazeh/eslint-plugin-better-react-hook-form.git"
+  },
+  "license": "MIT",
+  "author": "Nima Ebrazeh",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "docs",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.33.4",
+  "dependencies": {
+    "@typescript-eslint/utils": "^8.32.1"
+  },
+  "scripts": {
+    "build": "tsup --config tsup.config.ts",
+    "changeset": "pnpm dlx @changesets/cli@^2.29.5",
+    "docs": "pnpm run build && eslint-doc-generator",
+    "docs:check": "pnpm run build && eslint-doc-generator --check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "knip": "knip",
+    "lint": "eslint .",
+    "pack:check": "npm pack --dry-run",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "version-packages": "pnpm dlx @changesets/cli@^2.29.5 version"
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.26.0",
+    "@types/node": "^22.15.29",
+    "@typescript-eslint/parser": "^8.32.1",
+    "@typescript-eslint/rule-tester": "^8.32.1",
+    "eslint": "^9.26.0",
+    "eslint-doc-generator": "^3.3.2",
+    "eslint-plugin-eslint-plugin": "^6.4.0",
+    "globals": "^16.0.0",
+    "knip": "^5.62.0",
+    "prettier": "^3.5.3",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.1",
+    "vitest": "^3.1.3"
+  }
+}
