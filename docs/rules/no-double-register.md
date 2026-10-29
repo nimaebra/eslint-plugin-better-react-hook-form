@@ -29,7 +29,7 @@ The examples assume the corresponding hooks/components are imported from `react-
 
 ## Limitations and fixes
 
-Checks proven full field and register spreads on the same element, including Controller render parameters. Partial props and custom wrappers are not inferred. No automatic fix chooses which registration to retain.
+Checks proven full field and direct register-call spreads on the same element, including effective Controller render parameters. Render props overwritten by later props or unknown spreads are skipped. Aliases of register-call results, partial props, and custom wrappers are not inferred. No automatic fix chooses which registration to retain.
 
 All analysis is local to a file and resolves lexical bindings. Uncertain relationships are skipped. No type information is required.
 

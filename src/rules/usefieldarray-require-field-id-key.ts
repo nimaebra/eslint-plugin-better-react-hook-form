@@ -112,6 +112,7 @@ export default createRule<[], "useFieldIdKey">({
           return null;
         }
         function incorrectKey(input: TSESTree.Node): boolean {
+          if (ast.isUndefined(code, input)) return true;
           const path = keyPath(input);
           if (path) return path.length !== 1 || path[0] !== key;
           const value = ast.valueExpression(code, input);

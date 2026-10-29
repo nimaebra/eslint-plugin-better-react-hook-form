@@ -28,7 +28,7 @@ The examples assume the corresponding hooks/components are imported from `react-
 
 ## Limitations and fixes
 
-Checks imported useEffect, useLayoutEffect, useMemo, and useCallback, including React namespace/default members and aliases. The separate formState object is a valid dependency. Unrelated hooks are ignored. No automatic fix rewrites closures or dependency lists.
+Checks imported useEffect, useLayoutEffect, useMemo, and useCallback, including React namespace/default members and aliases. The separate formState object is a valid dependency. Unrelated hooks and spread arguments that obscure the dependency-array position are ignored. No automatic fix rewrites closures or dependency lists.
 
 All analysis is local to a file and resolves lexical bindings. Uncertain relationships are skipped. No type information is required.
 

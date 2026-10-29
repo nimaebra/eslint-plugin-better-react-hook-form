@@ -32,6 +32,8 @@ The examples assume the corresponding hooks/components are imported from `react-
 
 Reports bracket segments in literal paths and template text. Brackets inside interpolated expressions are not path syntax. Fixes only unambiguous literal index or simple quoted-property segments and preserves surrounding TypeScript assertions. Dynamic templates, malformed paths, and ambiguous property names receive no fix.
 
+Tracking stops after assignments or direct global Object/Reflect mutations of the form methods or their tracked aliases. Mutations hidden inside custom functions, containers, or aliased mutation helpers are not modeled.
+
 All analysis is local to a file and resolves lexical bindings. Uncertain relationships are skipped. No type information is required.
 
 ## Sources

@@ -33,6 +33,7 @@ export default createRule<[], "avoidWholeMethodsObject">({
           )
         )
           return;
+        if (node.arguments[0]?.type === "SpreadElement") return;
         const deps = node.arguments[1];
         if (deps?.type !== "ArrayExpression") return;
         for (const item of deps.elements) {

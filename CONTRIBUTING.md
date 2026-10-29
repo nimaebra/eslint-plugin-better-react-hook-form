@@ -31,6 +31,8 @@ Only esbuild's installation script is allowed through `pnpm-workspace.yaml`. Run
 
 `pnpm check` runs formatting, ESLint, TypeScript, Knip, unit/config/helper tests, build, example integrations, generated-document checks, and a package dry run.
 
+Integration checks execute every rule document's incorrect/correct examples and every README flat-config recipe, so changes to those examples must remain executable with the documented imports and parser.
+
 | Command                                  | Purpose                                                                                           |
 | :--------------------------------------- | :------------------------------------------------------------------------------------------------ |
 | `pnpm test` / `pnpm test:watch`          | Run unit tests / watch tests                                                                      |
@@ -86,6 +88,8 @@ Optional local hooks can be enabled with `pnpm hooks:install`. This changes this
 
 For public behavior changes, add a changeset with `pnpm changeset`. Internal-only documentation, tooling, or tests need no package bump unless they affect consumers. Generated version PRs use `chore(release): release packages`.
 
+Follow the [versioning policy](README.md#versioning). Preserve existing recommended/strict preset membership and severity throughout v1. New rules can ship as opt-in rules and join `all` in minor releases; preset promotions require a major release. Document changes to the diagnostic scope of existing rules in release notes.
+
 Ordinary pushes to main validate the package and maintain a Changesets version PR. They never publish npm packages, push release tags, or create GitHub releases. Merge a version PR before publishing its prepared version.
 
 Publishing requires a manual run of **Release** on `main` with **publish=true**. The workflow revalidates all checks and packaged consumers. With pending changesets it prepares a version PR instead; merge that PR and dispatch again.
@@ -135,6 +139,6 @@ The workflow uses GitHub-hosted runners with `id-token: write` and disables rele
 
 `@types/eslint` is intentionally exempted from Knip: modern ESLint provides its own declarations, while the installed ESLint 9.0.0 consumer proves the fallback dependency is needed.
 
-The smoke script supports `--package-spec eslint-plugin-better-react-hook-form@0.1.0` to verify the actual registry tarball, `--typescript-version 5.3.3` for the minimum compiler, and `--rhf-version none` to verify the optional peer. It checks declarations without `skipLibCheck` and exercises all eleven rules through every flat preset in JSX/TSX and legacy `all` on ESLint 9.
+After publication, the smoke script supports `--package-spec eslint-plugin-better-react-hook-form@1.0.0` to verify the actual registry tarball against the checked-out version, `--typescript-version 5.3.3` for the minimum compiler, and `--rhf-version none` to verify the optional peer. It checks declarations without `skipLibCheck` and exercises all eleven rules through every flat preset in JSX/TSX and legacy `all` on ESLint 9.
 
 See the [rule rationale and roadmap](docs/rule-audit.md) for rule decisions and future work.

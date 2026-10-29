@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-better-react-hook-form",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "ESLint rules for safer, more maintainable React Hook Form usage.",
   "keywords": [
     "eslint",

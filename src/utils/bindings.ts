@@ -50,7 +50,39 @@ function outerExpression(node: TSESTree.Node): TSESTree.Node {
   return node;
 }
 
-function isWritten(node: TSESTree.Node): boolean {
+const mutators = {
+  Object: new Set([
+    "assign",
+    "defineProperty",
+    "defineProperties",
+    "setPrototypeOf",
+  ]),
+  Reflect: new Set([
+    "set",
+    "defineProperty",
+    "deleteProperty",
+    "setPrototypeOf",
+  ]),
+};
+
+function isMutationTarget(code: SourceCode, node: TSESTree.Node): boolean {
+  const call = node.parent;
+  if (call?.type !== "CallExpression" || call.arguments[0] !== node)
+    return false;
+  const callee = unwrap(call.callee);
+  if (callee.type !== "MemberExpression") return false;
+  const object = unwrap(callee.object);
+  const method = propertyName(callee.property, callee.computed);
+  return (
+    object.type === "Identifier" &&
+    (object.name === "Object" || object.name === "Reflect") &&
+    method !== null &&
+    mutators[object.name].has(method) &&
+    !variableAt(code, object, object.name)?.defs.length
+  );
+}
+
+function isWritten(code: SourceCode, node: TSESTree.Node): boolean {
   let current = node;
   for (;;) {
     current = outerExpression(current);
@@ -74,6 +106,7 @@ function isWritten(node: TSESTree.Node): boolean {
       continue;
     }
     return (
+      isMutationTarget(code, current) ||
       ((parent?.type === "AssignmentExpression" ||
         parent?.type === "ForInStatement" ||
         parent?.type === "ForOfStatement") &&
@@ -95,16 +128,23 @@ export function isStable(
   if (seen.has(variable)) return true;
   const nextSeen = new Set(seen).add(variable);
   return !variable.references.some((ref) => {
-    if ((ref.isWrite() && !ref.init) || isWritten(ref.identifier)) return true;
-    const reference = outerExpression(ref.identifier);
+    if ((ref.isWrite() && !ref.init) || isWritten(code, ref.identifier))
+      return true;
+    let reference = outerExpression(ref.identifier);
+    while (
+      reference.parent?.type === "MemberExpression" &&
+      reference.parent.object === reference
+    )
+      reference = outerExpression(reference.parent);
     const parent = reference.parent;
-    if (
-      parent?.type === "VariableDeclarator" &&
-      parent.init === reference &&
-      parent.id.type === "Identifier"
-    ) {
-      const alias = variableAt(code, parent.id, parent.id.name);
-      return alias !== null && !isStable(code, alias, nextSeen);
+    if (parent?.type === "VariableDeclarator" && parent.init === reference) {
+      return code
+        .getDeclaredVariables(parent)
+        .some(
+          (alias) =>
+            bindingPath(parent.id, alias.name) !== null &&
+            !isStable(code, alias, nextSeen),
+        );
     }
     return false;
   });
@@ -171,7 +211,7 @@ export function origin(
     }
     if (def?.type === "Parameter") {
       const fn = def.node;
-      const container = fn.parent;
+      const container = outerExpression(fn).parent;
       const attribute =
         container?.type === "JSXExpressionContainer" ? container.parent : null;
       const opening =
@@ -182,6 +222,9 @@ export function origin(
         opening?.type !== "JSXOpeningElement" ||
         !isImport(code, opening.name, "react-hook-form", "Controller")
       )
+        return null;
+      const render = jsxProperty(code, opening, "render");
+      if (!render.known || !render.value || unwrap(render.value) !== fn)
         return null;
       const path = fn.params[0] ? bindingPath(fn.params[0], node.name) : null;
       return path
@@ -297,7 +340,13 @@ export function objectProperty(
       continue;
     }
     const key = propertyName(prop.key, prop.computed);
-    if (key === null) result = { known: false };
+    // A literal prototype setter can provide inherited options on direct reads.
+    // Spreads copy only own properties; treating this as unknown is conservative for both.
+    if (
+      key === null ||
+      (key === "__proto__" && !prop.computed && !prop.method && !prop.shorthand)
+    )
+      result = { known: false };
     else if (key === name)
       result =
         prop.kind === "init"

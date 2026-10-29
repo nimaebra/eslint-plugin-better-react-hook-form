@@ -8,4 +8,4 @@ List the checks run. For rule changes, cover valid usage, reported usage, aliase
 
 ## Documentation and release notes
 
-Update rule docs and generated presets when relevant. Add a changeset for changes to published behavior after the initial release.
+Update rule docs and generated presets when relevant. Add a changeset for changes to published behavior, following the versioning policy in README.md.

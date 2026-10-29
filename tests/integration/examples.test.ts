@@ -130,3 +130,38 @@ it("lints JSX and TSX with every README flat-config recipe", async () => {
     ]);
   }
 });
+
+describe("published rule documentation examples", () => {
+  for (const name of Object.keys(rules)) {
+    it(`checks the incorrect and correct examples for ${name}`, async () => {
+      const { readFileSync } = await import("node:fs");
+      const markdown = readFileSync(`docs/rules/${name}.md`, "utf8");
+      const examples = [
+        ...markdown.matchAll(/(Incorrect|Correct):\n\n```tsx\n([\s\S]*?)```/g),
+      ];
+      expect(examples.map((example) => example[1])).toEqual([
+        "Incorrect",
+        "Correct",
+      ]);
+      const id = `better-react-hook-form/${name}`;
+      const eslint = new ESLint({
+        overrideConfigFile: true,
+        overrideConfig: {
+          files: ["**/*.tsx"],
+          languageOptions: { parser },
+          plugins: { "better-react-hook-form": { rules } },
+          rules: { [id]: "error" },
+        },
+      });
+      const imports = `import {Controller,FormProvider,useController,useFieldArray,useForm,useFormContext,useFormState} from 'react-hook-form';import {useEffect,useLayoutEffect,useMemo,useCallback} from 'react';\n`;
+      for (const [, kind, source] of examples) {
+        const [result] = await eslint.lintText(imports + source, {
+          filePath: "documentation.tsx",
+        });
+        expect(result.messages.map((message) => message.ruleId)).toEqual(
+          kind === "Incorrect" ? [id] : [],
+        );
+      }
+    });
+  }
+});

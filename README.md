@@ -179,11 +179,17 @@ Each setup includes valid and intentionally invalid fixtures. The [shared rule c
 
 Rules resolve named imports, namespace imports, lexical scopes, and immutable local aliases. Unrelated identifiers and shadowed bindings are ignored. Analysis is local to a file: custom hook wrappers, values imported from other files, unknown spreads, and arbitrary runtime control flow may not be provable. These cases are skipped rather than guessed.
 
+Assignments through local member/destructuring aliases and direct global `Object`/`Reflect` mutation calls stop value tracking. Literal custom prototypes make option values uncertain. Mutations hidden inside custom functions, containers, or aliased mutation helpers are not modeled.
+
 Only unambiguous literal bracket-path conversions receive automatic fixes. Changing subscriptions, default values, field keys, or transforms requires a developer's decision, so those rules do not auto-rewrite code.
 
 `watch()` and direct `formState` reads are valid APIs. With React Compiler, follow RHF's [watch guidance](https://react-hook-form.com/docs/useform/watch): use `useWatch` or opt out of compilation with `"use no memo"` where appropriate. Read the state you need during render to establish subscriptions; destructuring is useful but is not universally required.
 
 The plugin targets documented API mistakes, not temporary library bugs. The [rule rationale and roadmap](docs/rule-audit.md) explains rule decisions, upstream evidence, and future improvements.
+
+## Versioning
+
+Version 1 stabilizes the public exports, rule names, and configuration shapes. Changes to existing `recommended` or `strict` preset membership or severity, removed APIs, and dropped supported runtime versions require a major release. Minor releases can add opt-in rules and expand `all`; pin your configuration to individual rules if you need its enabled rule set to stay fixed. Fixes can refine diagnostics and autofixes within an existing rule's documented scope.
 
 ## Contributing
 

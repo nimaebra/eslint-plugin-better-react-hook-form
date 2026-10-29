@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0
+
+### Major Changes
+
+- Release the stable v1 API with eleven React Hook Form v7 rules, existing recommended/strict/all presets, flat and ESLint 9 legacy configuration, and ESM/CommonJS exports with declarations. Existing 0.1.0 configurations require no migration.
+
+  Stop diagnostics and bracket-path fixes after direct Object/Reflect mutations and mutations through local member/destructuring aliases. Treat literal custom prototypes as uncertain options. Respect overwritten Controller render props and spread arguments that obscure React hook dependency positions. Report proven undefined field-array keys.
+
+  Execute every rule document's incorrect/correct examples in integration tests and document the v1 compatibility policy, precise analysis limits, and release verification procedure.
+
 ## 0.1.0 — 2026-10-29
 
 - Provide eleven rules for documented React Hook Form v7 usage, with recommended, strict, and all presets.

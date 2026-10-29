@@ -28,7 +28,7 @@ The examples assume the corresponding hooks/components are imported from `react-
 
 ## Limitations and fixes
 
-Checks direct map callbacks, returned JSX elements/fragments, missing keys, member key reads, and destructured callback parameters. Unknown keyName values or spread-provided keys are skipped. Chained transformations and custom row render helpers are not inferred. The default is field.id in v7; v8 field.key is not supported. No automatic fix changes component identity.
+Checks direct map callbacks, returned JSX elements/fragments, missing or proven undefined keys, member key reads, and destructured callback parameters. Unknown keyName values or spread-provided keys are skipped. Tracking stops after mutations through local member/destructuring aliases. Chained transformations and custom row render helpers are not inferred. The default is field.id in v7; v8 field.key is not supported. No automatic fix changes component identity.
 
 All analysis is local to a file and resolves lexical bindings. Uncertain relationships are skipped. No type information is required.
 
