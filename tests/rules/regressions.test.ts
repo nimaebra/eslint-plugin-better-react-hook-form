@@ -78,6 +78,7 @@ tester.run(
 );
 tester.run("path regressions", rules["no-register-bracket-syntax"], {
   valid: [
+    `import {useForm} from 'react-hook-form';function A(){var form=useForm();var form={register(){}};form.register('x[0]');}`,
     "import {useForm} from 'react-hook-form';const {register}=useForm();register(`users.${indexes[0]}.name`);",
     `import {useForm} from 'react-hook-form';function A(){const {register}=useForm()}function B(){const register=x=>x;register('a[0]')}`,
   ],
