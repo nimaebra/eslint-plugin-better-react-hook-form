@@ -2,4 +2,3 @@ coverage
 dist
 node_modules
 pnpm-lock.yaml
-plan-eslintPluginBetterReactHookForm.prompt.md
