@@ -100,6 +100,7 @@ export default createRule<[], "useFieldIdKey">({
           }
           if (value.type !== "Identifier") return null;
           const variable = ast.variableAt(code, value, value.name);
+          if (!variable || !ast.isStable(code, variable)) return null;
           const def = variable?.defs[0];
           if (def?.type === "Parameter" && def.node === callback)
             return ast.bindingPath(param, value.name);
@@ -116,11 +117,17 @@ export default createRule<[], "useFieldIdKey">({
           const value = ast.valueExpression(code, input);
           if (value.type === "Literal") return true;
           // The second map parameter is an index, even when aliased.
-          if (value.type === "Identifier" && indexParam?.type === "Identifier")
+          if (
+            value.type === "Identifier" &&
+            indexParam?.type === "Identifier"
+          ) {
+            const variable = ast.variableAt(code, value, value.name);
             return (
-              ast.variableAt(code, value, value.name) ===
-              ast.variableAt(code, indexParam, indexParam.name)
+              !!variable &&
+              ast.isStable(code, variable) &&
+              variable === ast.variableAt(code, indexParam, indexParam.name)
             );
+          }
           return false;
         }
         for (const element of elements) {

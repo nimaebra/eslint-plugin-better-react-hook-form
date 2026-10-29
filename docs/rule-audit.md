@@ -21,6 +21,8 @@ Reviewed October 29, 2026 against React Hook Form v7 documentation, upstream fix
 | no-conflicting-value-transforms            | Add, recommended error | [register](https://react-hook-form.com/docs/useform/register) explains ignored setValueAs transforms. Report proven conflicts after spread/override resolution; choosing the intended transform is not automatic.                                                                                                                                           |
 | no-undefined-controller-default-value      | Add, recommended error | [Controller](https://react-hook-form.com/docs/usecontroller/controller) disallows undefined defaults. Do not require a field-local default when useForm.defaultValues supplies one.                                                                                                                                                                         |
 
+See the [release-readiness audit](release-readiness.md) for the original plan mapping, publication gates and prioritized release roadmap.
+
 ## Follow-up candidates
 
 1. **Undefined setValue arguments.** [setValue](https://react-hook-form.com/docs/useform/setvalue) requires a defined value. Limit a future rule to proven RHF calls and explicitly undefined or missing arguments; never guess a replacement.

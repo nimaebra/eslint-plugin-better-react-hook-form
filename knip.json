@@ -2,5 +2,5 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": ["scripts/*.ts", "tests/**/*.test.ts"],
   "project": ["src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts"],
-  "ignoreDependencies": ["react", "react-hook-form"]
+  "ignoreDependencies": ["react", "react-hook-form", "@types/eslint"]
 }

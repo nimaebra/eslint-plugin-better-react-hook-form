@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [22, 24, 26]
+        node-version: ["22.13.0", 22, 24, 26]
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -38,7 +38,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        eslint: ["^9", "^10"]
+        eslint: ["9.0.0", "^9", "10.0.0", "^10"]
         rhf: ["7.55.0", "^7"]
     steps:
       - uses: actions/checkout@v7
@@ -49,3 +49,18 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm smoke:pack --eslint-version '${{ matrix.eslint }}' --rhf-version '${{ matrix.rhf }}'
+  consumer-types:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        typescript: ["5.3.3", "^6"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm smoke:pack --typescript-version '${{ matrix.typescript }}' --rhf-version none
