@@ -63,6 +63,7 @@ function stable(
   variable: TSESLint.Scope.Variable,
   seen = new Set<TSESLint.Scope.Variable>(),
 ): boolean {
+  if (variable.defs.length > 1) return false;
   if (seen.has(variable)) return true;
   const nextSeen = new Set(seen).add(variable);
   return !variable.references.some((ref) => {
