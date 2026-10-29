@@ -4,23 +4,19 @@ ESLint rules for safer, more maintainable React Hook Form usage.
 
 Catch double registration, incorrect field-array keys, ignored value transforms, and other documented RHF mistakes. The recommended preset focuses on correctness; stricter subscription and sequencing advice is opt-in.
 
-**Publication status:** the first npm release is pending. The commands below describe the package after publication. To try the current source, clone this repository, run `pnpm install && pnpm build`, and use an [example configuration](examples).
-
 ## Compatibility
 
-| Dependency      | Supported versions |
-| :-------------- | :----------------- |
-| Node.js         | `^22.13.0          |     | >=24.0.0` |
-| ESLint          | `^9.0.0            |     | ^10.0.0`  |
-| React Hook Form | `>=7.55.0 <8`      |
+| Dependency      | Supported versions       |
+| :-------------- | :----------------------- |
+| Node.js         | `^22.13.0 \|\| >=24.0.0` |
+| ESLint          | `^9.0.0 \|\| ^10.0.0`    |
+| React Hook Form | `>=7.55.0 <8`            |
 
 RHF is an optional peer dependency: the plugin does not import or execute your form library. Applications must use the supported RHF range for the rules' guidance to apply. RHF v8 beta is not supported yet; its field-array identifiers and payload semantics differ.
 
 JavaScript projects do not need a TypeScript parser. TypeScript/TSX projects should configure `typescript-eslint`. No rule requires type-aware linting.
 
 ## Installation
-
-After the first npm release:
 
 ```sh
 npm install --save-dev eslint eslint-plugin-better-react-hook-form
@@ -36,10 +32,18 @@ ESLint 9 and 10:
 // eslint.config.mjs
 import betterReactHookForm from "eslint-plugin-better-react-hook-form";
 
-export default [...betterReactHookForm.flatConfigs.recommended];
+export default [
+  ...betterReactHookForm.flatConfigs.recommended,
+  {
+    files: ["**/*.{js,jsx}"],
+    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+  },
+];
 ```
 
-For TypeScript and TSX:
+The JSX configuration above matches `.jsx` files and enables JSX parsing in JavaScript. The plugin presets provide rules; configure file matching and your project's parser explicitly.
+
+For TypeScript and TSX, install `typescript` and `typescript-eslint` as development dependencies:
 
 ```js
 import tseslint from "typescript-eslint";
@@ -86,6 +90,8 @@ import betterReactHookForm from "eslint-plugin-better-react-hook-form";
 export default [
   ...betterReactHookForm.flatConfigs.recommended,
   {
+    files: ["**/*.{js,jsx}"],
+    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
     rules: {
       "better-react-hook-form/no-nested-form-provider": "off",
       "better-react-hook-form/no-stacked-usefieldarray-actions": "warn",
@@ -94,7 +100,22 @@ export default [
 ];
 ```
 
-The default export is the plugin. Named `rules`, `configs`, and `flatConfigs` exports and configuration types are also available. CommonJS consumers can use `require("eslint-plugin-better-react-hook-form").default`.
+The default export is the plugin. Named `rules`, `configs`, and `flatConfigs` exports and configuration types are also available. TypeScript consumers need TypeScript 5.3 or later; declarations for early ESLint 9 versions are included as a dependency.
+
+CommonJS flat configuration can use the default export:
+
+```cjs
+// eslint.config.cjs
+const betterReactHookForm =
+  require("eslint-plugin-better-react-hook-form").default;
+module.exports = [
+  ...betterReactHookForm.flatConfigs.recommended,
+  {
+    files: ["**/*.{js,jsx}"],
+    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+  },
+];
+```
 
 ## Rules
 
@@ -131,7 +152,7 @@ Only unambiguous literal bracket-path conversions receive automatic fixes. Chang
 
 `watch()` and direct `formState` reads are valid APIs. With React Compiler, follow RHF's [watch guidance](https://react-hook-form.com/docs/useform/watch): use `useWatch` or opt out of compilation with `"use no memo"` where appropriate. Read the state you need during render to establish subscriptions; destructuring is useful but is not universally required.
 
-The plugin targets documented API mistakes, not temporary library bugs. The [rule audit and roadmap](docs/rule-audit.md) explains removed rules, upstream evidence, and future candidates.
+The plugin targets documented API mistakes, not temporary library bugs. The [rule audit](docs/rule-audit.md) explains removed rules and upstream evidence. The [release-readiness audit and roadmap](docs/release-readiness.md) records the original plan, release gates, and the next rule batch.
 
 ## Development and contributing
 

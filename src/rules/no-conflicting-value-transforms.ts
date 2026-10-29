@@ -31,8 +31,14 @@ export default createRule<[], "conflictingTransforms">({
           )
         )
           return;
+        if (
+          node.arguments
+            .slice(0, 2)
+            .some((argument) => argument.type === "SpreadElement")
+        )
+          return;
         const options = node.arguments[1];
-        if (!options || options.type === "SpreadElement") return;
+        if (!options) return;
         const number = ast.objectProperty(code, options, "valueAsNumber");
         const date = ast.objectProperty(code, options, "valueAsDate");
         const custom = ast.objectProperty(code, options, "setValueAs");

@@ -43,22 +43,50 @@ export function variableAt(
   return ASTUtils.findVariable(code.getScope(node), name);
 }
 
-function isWritten(node: TSESTree.Node): boolean {
-  let current = node;
-  while (
-    current.parent?.type === "MemberExpression" &&
-    current.parent.object === current
-  )
-    current = current.parent;
-  const parent = current.parent;
-  return (
-    (parent?.type === "AssignmentExpression" && parent.left === current) ||
-    parent?.type === "UpdateExpression" ||
-    (parent?.type === "UnaryExpression" && parent.operator === "delete")
-  );
+/** Include assertions and optional-chain wrappers when walking out from a reference. */
+function outerExpression(node: TSESTree.Node): TSESTree.Node {
+  while (node.parent && unwrap(node.parent) === unwrap(node))
+    node = node.parent;
+  return node;
 }
 
-function stable(
+function isWritten(node: TSESTree.Node): boolean {
+  let current = node;
+  for (;;) {
+    current = outerExpression(current);
+    const parent = current.parent;
+    if (
+      (parent?.type === "MemberExpression" && parent.object === current) ||
+      (parent?.type === "AssignmentPattern" && parent.left === current) ||
+      (parent?.type === "RestElement" && parent.argument === current) ||
+      parent?.type === "ArrayPattern" ||
+      parent?.type === "ObjectPattern"
+    ) {
+      current = parent;
+      continue;
+    }
+    if (
+      parent?.type === "Property" &&
+      parent.value === current &&
+      parent.parent.type === "ObjectPattern"
+    ) {
+      current = parent.parent;
+      continue;
+    }
+    return (
+      ((parent?.type === "AssignmentExpression" ||
+        parent?.type === "ForInStatement" ||
+        parent?.type === "ForOfStatement") &&
+        parent.left === current) ||
+      (parent?.type === "UpdateExpression" && parent.argument === current) ||
+      (parent?.type === "UnaryExpression" &&
+        parent.operator === "delete" &&
+        parent.argument === current)
+    );
+  }
+}
+
+export function isStable(
   code: SourceCode,
   variable: TSESLint.Scope.Variable,
   seen = new Set<TSESLint.Scope.Variable>(),
@@ -68,14 +96,15 @@ function stable(
   const nextSeen = new Set(seen).add(variable);
   return !variable.references.some((ref) => {
     if ((ref.isWrite() && !ref.init) || isWritten(ref.identifier)) return true;
-    const parent = ref.identifier.parent;
+    const reference = outerExpression(ref.identifier);
+    const parent = reference.parent;
     if (
       parent?.type === "VariableDeclarator" &&
-      parent.init === ref.identifier &&
+      parent.init === reference &&
       parent.id.type === "Identifier"
     ) {
       const alias = variableAt(code, parent.id, parent.id.name);
-      return alias !== null && !stable(code, alias, nextSeen);
+      return alias !== null && !isStable(code, alias, nextSeen);
     }
     return false;
   });
@@ -105,7 +134,8 @@ export function origin(
   const node = unwrap(input);
   if (node.type === "Identifier" || node.type === "JSXIdentifier") {
     const variable = variableAt(code, node, node.name);
-    if (!variable || seen.has(variable) || !stable(code, variable)) return null;
+    if (!variable || seen.has(variable) || !isStable(code, variable))
+      return null;
     const nextSeen = new Set(seen).add(variable);
     const def = variable.defs[0];
     if (def?.type === "ImportBinding") {
@@ -217,7 +247,7 @@ export function valueExpression(
   const node = unwrap(input);
   if (node.type !== "Identifier") return node;
   const variable = variableAt(code, node, node.name);
-  if (!variable || seen.has(variable) || !stable(code, variable)) return node;
+  if (!variable || seen.has(variable) || !isStable(code, variable)) return node;
   const def = variable.defs[0];
   if (def?.type === "FunctionName") return def.node;
   if (

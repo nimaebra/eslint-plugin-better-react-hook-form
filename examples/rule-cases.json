@@ -1,0 +1,46 @@
+{
+  "no-conflicting-value-transforms": {
+    "valid": "import {useForm} from 'react-hook-form';const {register}=useForm();register('age',{valueAsNumber:true});",
+    "invalid": "import {useForm} from 'react-hook-form';const {register}=useForm();register('age',{valueAsNumber:true,setValueAs:v=>v});"
+  },
+  "no-deprecated-watch-callback": {
+    "valid": "import {useForm} from 'react-hook-form';const {watch}=useForm();watch('name');",
+    "invalid": "import {useForm} from 'react-hook-form';const {watch}=useForm();watch(()=>{});"
+  },
+  "no-double-register": {
+    "valid": "import {Controller,useForm} from 'react-hook-form';const {register}=useForm();const view=<Controller render={({field})=><input {...field}/>}/>;",
+    "invalid": "import {Controller,useForm} from 'react-hook-form';const {register}=useForm();const view=<Controller render={({field})=><input {...field} {...register('name')}/>}/>;"
+  },
+  "no-empty-usefieldarray-action": {
+    "valid": "import {useFieldArray} from 'react-hook-form';const {append}=useFieldArray({name:'users'});append({name:''});",
+    "invalid": "import {useFieldArray} from 'react-hook-form';const {append}=useFieldArray({name:'users'});append({});"
+  },
+  "no-form-methods-object-in-deps": {
+    "valid": "import {useForm} from 'react-hook-form';import {useEffect} from 'react';const {reset}=useForm();useEffect(()=>reset(),[reset]);",
+    "invalid": "import {useForm} from 'react-hook-form';import {useEffect} from 'react';const form=useForm();useEffect(()=>form.reset(),[form]);"
+  },
+  "no-nested-form-provider": {
+    "valid": "import {FormProvider} from 'react-hook-form';const view=<FormProvider><div/></FormProvider>;",
+    "invalid": "import {FormProvider} from 'react-hook-form';const view=<FormProvider><FormProvider/></FormProvider>;"
+  },
+  "no-register-bracket-syntax": {
+    "valid": "import {useForm} from 'react-hook-form';const {register}=useForm();register('users.0.name');",
+    "invalid": "import {useForm} from 'react-hook-form';const {register}=useForm();register('users[0].name');"
+  },
+  "no-stacked-usefieldarray-actions": {
+    "valid": "import {useFieldArray} from 'react-hook-form';const {append,remove}=useFieldArray({name:'users'});function add(){append({name:''})}function drop(){remove(0)}",
+    "invalid": "import {useFieldArray} from 'react-hook-form';const {append,remove}=useFieldArray({name:'users'});function click(){append({name:''});remove(0)}"
+  },
+  "no-undefined-controller-default-value": {
+    "valid": "import {Controller} from 'react-hook-form';const view=<Controller defaultValue=''/>;",
+    "invalid": "import {Controller} from 'react-hook-form';const view=<Controller defaultValue={undefined}/>;"
+  },
+  "prefer-useformstate-over-formstate-context": {
+    "valid": "import {useFormState} from 'react-hook-form';const {errors}=useFormState();console.log(errors);",
+    "invalid": "import {useFormContext} from 'react-hook-form';const {formState:{errors}}=useFormContext();console.log(errors);"
+  },
+  "usefieldarray-require-field-id-key": {
+    "valid": "import {useFieldArray} from 'react-hook-form';const {fields}=useFieldArray({name:'users'});const view=fields.map(field=><input key={field.id}/>);",
+    "invalid": "import {useFieldArray} from 'react-hook-form';const {fields}=useFieldArray({name:'users'});const view=fields.map((field,index)=><input key={index}/>);"
+  }
+}
