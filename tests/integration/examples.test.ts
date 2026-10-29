@@ -87,8 +87,9 @@ it("lints JSX and TSX with every README flat-config recipe", async () => {
   const markdown = readFileSync("README.md", "utf8");
   const snippets = [...markdown.matchAll(/```(js|cjs)\n([\s\S]*?)```/g)].filter(
     (match) =>
-      match[2].includes("export default") ||
-      match[2].includes("module.exports"),
+      match[2].includes("flatConfigs") &&
+      (match[2].includes("export default") ||
+        match[2].includes("module.exports")),
   );
   expect(snippets).toHaveLength(4);
   for (const [, language, snippet] of snippets) {

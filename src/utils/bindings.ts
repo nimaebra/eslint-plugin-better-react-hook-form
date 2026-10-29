@@ -45,7 +45,8 @@ export function variableAt(
 
 /** Include assertions and optional-chain wrappers when walking out from a reference. */
 function outerExpression(node: TSESTree.Node): TSESTree.Node {
-  while (node.parent && unwrap(node.parent) === node) node = node.parent;
+  while (node.parent && unwrap(node.parent) === unwrap(node))
+    node = node.parent;
   return node;
 }
 

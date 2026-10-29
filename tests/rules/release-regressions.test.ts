@@ -12,6 +12,8 @@ tester.run(
     valid: [
       ...[
         "(form as any).register = replacement;",
+        "((form as any)!).register = replacement;",
+        "const alias = ((form as any)!); alias.register = replacement;",
         "(form satisfies unknown).register = replacement;",
         "form!.register = replacement;",
         "const alias = (form as any); alias.register = replacement;",

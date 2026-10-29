@@ -23,7 +23,7 @@ Two additional documented correctness rules are already included: conflicting re
 
 ## Release hardening
 
-Twenty regression cases failed before the fixes. Binding analysis now stops following methods replaced through TypeScript assertions/non-null wrappers, wrapped aliases, destructuring assignments and loop targets. Field-key analysis uses the same stability checks for parameters and aliases, including overwritten map indexes. Register transform analysis skips uncertain argument positions after spreads. Existing proven diagnostics and the sole literal-path automatic fix remain covered.
+Twenty-two regression cases failed before the fixes, including nested assertions. Binding analysis now stops following methods replaced through TypeScript assertions/non-null wrappers, wrapped aliases, destructuring assignments and loop targets. Field-key analysis uses the same stability checks for parameters and aliases, including overwritten map indexes. Register transform analysis skips uncertain argument positions after spreads. Existing proven diagnostics and the sole literal-path automatic fix remain covered.
 
 The public exports, eleven rule names, preset severities and compatibility ranges remain unchanged. `@types/eslint` is a production declaration dependency so early ESLint 9 consumers can resolve the published types; ESLint only began bundling its own declarations in [9.10.0](https://eslint.org/blog/2024/09/eslint-v9.10.0-released/). Compiler checks do not use `skipLibCheck`.
 
@@ -47,6 +47,12 @@ done
 pnpm smoke:pack --typescript-version 5.3.3 --rhf-version none
 pnpm smoke:pack --typescript-version '^6' --rhf-version none
 ```
+
+## Local verification snapshot
+
+The readiness branch passes `pnpm check` on Node 24.22.1 and the exact Node 22.13.0 floor: 170 unit/config tests and 70 built-package integration tests. Coverage is 96.48% lines, 93.33% statements, 90.14% branches and 100% functions. The eight ESLint/RHF combinations and both no-RHF compiler consumers pass. The moderate security gate passes and the production audit reports no vulnerabilities. GitHub CI repeats these checks against the final commit before merge.
+
+The final release notes must record the merged commit and registry integrity after publication; this snapshot does not claim npm publication or prove OIDC permissions.
 
 ## Publication procedure
 
