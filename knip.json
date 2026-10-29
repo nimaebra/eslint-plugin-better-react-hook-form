@@ -1,4 +1,6 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
-  "ignore": [".eslint-doc-generatorrc.cjs"]
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["scripts/*.ts", "tests/**/*.test.ts"],
+  "project": ["src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts"],
+  "ignoreDependencies": ["react", "react-hook-form"]
 }

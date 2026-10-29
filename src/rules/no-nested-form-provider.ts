@@ -1,65 +1,54 @@
-import type { TSESTree } from "@typescript-eslint/utils";
-
 import { createRule } from "../utils/createRule.js";
-import {
-  getReactHookFormImportInfo,
-  isReactHookFormJsxElement,
-} from "../utils/reactHookFormImports.js";
-import type { ReactHookFormImportInfo } from "../utils/reactHookFormImports.js";
+import * as ast from "../utils/bindings.js";
 
-type MessageIds = "avoidNestedProvider";
-type Options = [];
-
-function isFormProviderElement(
-  node: TSESTree.JSXElement,
-  importInfo: ReactHookFormImportInfo,
-): boolean {
-  return isReactHookFormJsxElement(
-    node.openingElement.name,
-    importInfo,
-    "FormProvider",
-  );
-}
-
-export default createRule<Options, MessageIds>({
+export default createRule<[], "avoidNestedProvider">({
   name: "no-nested-form-provider",
   meta: {
-    type: "problem",
+    type: "suggestion",
     docs: {
-      description: "disallow nesting react-hook-form FormProvider components.",
+      description: "disallow nesting React Hook Form providers.",
       recommended: true,
       requiresTypeChecking: false,
-      url: "https://github.com/nimaebrazeh/eslint-plugin-better-react-hook-form/blob/main/docs/rules/no-nested-form-provider.md",
     },
+    schema: [],
     messages: {
       avoidNestedProvider:
         "Avoid nesting react-hook-form FormProvider components.",
     },
-    schema: [],
   },
   defaultOptions: [],
   create(context) {
-    const importInfo = getReactHookFormImportInfo(context.sourceCode.ast);
+    const code = context.sourceCode;
 
     return {
       JSXElement(node) {
-        if (!isFormProviderElement(node, importInfo)) {
+        if (
+          !ast.isImport(
+            code,
+            node.openingElement.name,
+            "react-hook-form",
+            "FormProvider",
+          )
+        )
           return;
-        }
-
-        const ancestors = context.sourceCode.getAncestors(node);
-
-        for (const ancestor of ancestors) {
-          if (
-            ancestor.type === "JSXElement" &&
-            isFormProviderElement(ancestor, importInfo)
-          ) {
-            context.report({
-              node: node.openingElement.name,
-              messageId: "avoidNestedProvider",
-            });
-            return;
-          }
+        if (
+          code
+            .getAncestors(node)
+            .some(
+              (parent) =>
+                parent.type === "JSXElement" &&
+                ast.isImport(
+                  code,
+                  parent.openingElement.name,
+                  "react-hook-form",
+                  "FormProvider",
+                ),
+            )
+        ) {
+          context.report({
+            node: node.openingElement.name,
+            messageId: "avoidNestedProvider",
+          });
         }
       },
     };

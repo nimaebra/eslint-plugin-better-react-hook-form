@@ -1,0 +1,23 @@
+name: Bug report
+description: Report a false positive, missed diagnostic, or configuration problem
+body:
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Plugin, ESLint, Node, React Hook Form, and parser versions
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include your ESLint config and the smallest code sample or reproduction URL.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true

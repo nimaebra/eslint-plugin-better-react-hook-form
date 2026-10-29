@@ -1,42 +1,39 @@
 # better-react-hook-form/no-register-bracket-syntax
 
-📝 Disallow bracket syntax in react-hook-form register field paths.
+📝 Require dot syntax in register field paths.
 
-💼 This rule is enabled in the ✅ `recommended` config.
+💼 This rule is enabled in the following configs: 🌐 `all`, ✅ `recommended`, 🔒 `strict`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
 <!-- end auto-generated rule header -->
 
-Prefer dot syntax when passing field paths to `register()`.
+Use dot notation for field paths, matching the documented v7 TypeScript path convention.
 
-## Rule Details
+## Rule details
 
-React Hook Form documents dot syntax for field array paths such as `users.0.name`.
-Bracket syntax such as `users[0].name` is not supported consistently and should be avoided.
-
-## Examples
-
-Examples of **incorrect** code for this rule:
+Incorrect:
 
 ```tsx
-import { useForm } from "react-hook-form";
-
-function Example() {
-  const { register } = useForm();
-
-  return <input {...register("users[0].name")} />;
-}
+const { register } = useForm();
+register("users[0].name");
 ```
 
-Examples of **correct** code for this rule:
+Correct:
 
 ```tsx
-import { useForm } from "react-hook-form";
-
-function Example() {
-  const { register } = useForm();
-
-  return <input {...register("users.0.name")} />;
-}
+const { register } = useForm();
+register("users.0.name");
 ```
+
+The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
+
+## Limitations and fixes
+
+Reports bracket segments in literal paths and template text. Brackets inside interpolated expressions are not path syntax. Fixes only unambiguous literal index or simple quoted-property segments and preserves surrounding TypeScript assertions. Dynamic templates, malformed paths, and ambiguous property names receive no fix.
+
+All analysis is local to a file and resolves lexical bindings. Uncertain relationships are skipped. No type information is required.
+
+## Sources
+
+- [RHF register](https://react-hook-form.com/docs/useform/register)

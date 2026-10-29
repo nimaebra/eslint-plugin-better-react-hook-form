@@ -1,54 +1,51 @@
 name: CI
-
 on:
   pull_request:
   push:
-    branches:
-      - main
-
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  validate:
+  verify:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        node-version: [20, 22]
-
+        node-version: [22, 24, 26]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
-          version: 10.33.4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          cache: pnpm
           node-version: ${{ matrix.node-version }}
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Test
-        run: pnpm test
-
-      - name: Build
-        run: pnpm build
-
-      - name: Check generated docs
-        run: pnpm docs:check
-
-      - name: Check for unused files and deps
-        run: pnpm knip
-
-      - name: Check package contents
-        run: pnpm pack:check
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm security:audit
+        if: matrix.node-version == 24
+      - run: pnpm test:coverage
+        if: matrix.node-version == 24
+      - uses: actions/upload-artifact@v7
+        if: matrix.node-version == 24
+        with:
+          name: coverage
+          path: coverage/lcov.info
+  compatibility:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        eslint: ["^9", "^10"]
+        rhf: ["7.55.0", "^7"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm smoke:pack --eslint-version '${{ matrix.eslint }}' --rhf-version '${{ matrix.rhf }}'

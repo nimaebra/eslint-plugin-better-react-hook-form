@@ -144,7 +144,7 @@ ruleTester.run("no-register-bracket-syntax", rule, {
 
           return (
             <input
-              {...register("contacts.0.email")}
+              {...register("contacts.0.email" as "contacts.0.email")}
             />
           );
         }

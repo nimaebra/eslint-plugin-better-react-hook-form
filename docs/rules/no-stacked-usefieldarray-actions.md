@@ -1,58 +1,45 @@
 # better-react-hook-form/no-stacked-usefieldarray-actions
 
-📝 Disallow stacking multiple useFieldArray() actions in the same synchronous block.
+📝 Disallow consecutive actions on the same field array.
 
-💼 This rule is enabled in the ✅ `recommended` config.
+💼⚠️ This rule is enabled in the 🌐 `all` config. This rule _warns_ in the 🔒 `strict` config.
 
 <!-- end auto-generated rule header -->
 
-Disallow stacking multiple `useFieldArray()` actions in the same synchronous block.
+RHF advises against consecutive actions on the same field array. This optional advice is enabled as a warning in strict, not recommended.
 
-## Rule Details
+## Rule details
 
-The `useFieldArray` docs recommend against stacking actions one after another in the same synchronous callback.
-Splitting those mutations across callbacks or a later effect is less error-prone and matches the documented guidance.
-
-Examples of **incorrect** code for this rule:
+Incorrect:
 
 ```tsx
-import { useFieldArray } from "react-hook-form";
-
-function Example() {
-  const { append, remove } = useFieldArray({ name: "contacts" });
-
-  return (
-    <button
-      type="button"
-      onClick={() => {
-        append({ email: "hello@example.com" });
-        remove(0);
-      }}
-    />
-  );
+const { append, remove } = useFieldArray({ name: "users" });
+function handleAdd() {
+  append({ name: "Ada" });
+  remove(0);
 }
 ```
 
-Examples of **correct** code for this rule:
+Correct:
 
 ```tsx
-import { useEffect } from "react";
-import { useFieldArray } from "react-hook-form";
-
-function Example() {
-  const { append, remove } = useFieldArray({ name: "contacts" });
-
-  useEffect(() => {
-    remove(0);
-  }, [remove]);
-
-  return (
-    <button
-      type="button"
-      onClick={() => {
-        append({ email: "hello@example.com" });
-      }}
-    />
-  );
+const { append, remove } = useFieldArray({ name: "users" });
+function handleAdd() {
+  append({ name: "Ada" });
+}
+function handleRemove() {
+  remove(0);
 }
 ```
+
+The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
+
+## Limitations and fixes
+
+Only consecutive direct action-call statements on the same hook instance are grouped. Independent arrays are tracked separately. Other statements, await boundaries, and separate blocks stop grouping. This intentionally conservative rule does not model runtime scheduling. No automatic sequencing change is safe.
+
+All analysis is local to a file and resolves lexical bindings. Uncertain relationships are skipped. No type information is required.
+
+## Sources
+
+- [RHF usefieldarray](https://react-hook-form.com/docs/usefieldarray)

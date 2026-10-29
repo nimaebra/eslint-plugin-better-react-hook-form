@@ -1,197 +1,146 @@
 import type { TSESTree } from "@typescript-eslint/utils";
-
 import { createRule } from "../utils/createRule.js";
-import {
-  getReactHookFormImportInfo,
-  isReactHookFormCall,
-} from "../utils/reactHookFormImports.js";
+import * as ast from "../utils/bindings.js";
 
-type MessageIds = "useFieldIdKey";
-type Options = [];
-
-function isTrackedFieldsMap(
-  callee: TSESTree.CallExpression["callee"],
-  fieldsBindings: ReadonlySet<string>,
-  fieldArrayObjects: ReadonlySet<string>,
-): boolean {
-  if (
-    callee.type !== "MemberExpression" ||
-    callee.computed ||
-    callee.property.type !== "Identifier" ||
-    callee.property.name !== "map"
-  ) {
-    return false;
-  }
-
-  if (
-    callee.object.type === "Identifier" &&
-    fieldsBindings.has(callee.object.name)
-  ) {
-    return true;
-  }
-
-  return (
-    callee.object.type === "MemberExpression" &&
-    !callee.object.computed &&
-    callee.object.object.type === "Identifier" &&
-    callee.object.property.type === "Identifier" &&
-    fieldArrayObjects.has(callee.object.object.name) &&
-    callee.object.property.name === "fields"
-  );
-}
-
-function getReturnedOpeningElement(
-  callback: TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression,
-): TSESTree.JSXOpeningElement | null {
-  if (callback.body.type === "JSXElement") {
-    return callback.body.openingElement;
-  }
-
-  if (callback.body.type !== "BlockStatement") {
-    return null;
-  }
-
-  for (const statement of callback.body.body) {
-    if (
-      statement.type === "ReturnStatement" &&
-      statement.argument?.type === "JSXElement"
-    ) {
-      return statement.argument.openingElement;
-    }
-  }
-
-  return null;
-}
-
-function getKeyExpression(
-  openingElement: TSESTree.JSXOpeningElement,
-): TSESTree.Expression | null {
-  for (const attribute of openingElement.attributes) {
-    if (
-      attribute.type !== "JSXAttribute" ||
-      attribute.name.type !== "JSXIdentifier" ||
-      attribute.name.name !== "key" ||
-      attribute.value?.type !== "JSXExpressionContainer" ||
-      attribute.value.expression.type === "JSXEmptyExpression"
-    ) {
-      continue;
-    }
-
-    return attribute.value.expression;
-  }
-
-  return null;
-}
-
-function isFieldIdExpression(
-  expression: TSESTree.Expression,
-  itemName: string,
-): boolean {
-  return (
-    expression.type === "MemberExpression" &&
-    !expression.computed &&
-    expression.object.type === "Identifier" &&
-    expression.object.name === itemName &&
-    expression.property.type === "Identifier" &&
-    expression.property.name === "id"
-  );
-}
-
-export default createRule<Options, MessageIds>({
+export default createRule<[], "useFieldIdKey">({
   name: "usefieldarray-require-field-id-key",
   meta: {
     type: "problem",
     docs: {
       description:
-        "require rows rendered from useFieldArray().fields.map() to use field.id as their key.",
+        "require the generated field-array identifier as each row's key.",
       recommended: true,
       requiresTypeChecking: false,
-      url: "https://github.com/nimaebrazeh/eslint-plugin-better-react-hook-form/blob/main/docs/rules/usefieldarray-require-field-id-key.md",
-    },
-    messages: {
-      useFieldIdKey:
-        "Use {{item}}.id as the key for rows rendered from useFieldArray().fields.map().",
     },
     schema: [],
+    messages: {
+      useFieldIdKey:
+        "Use the generated {{item}}.{{key}} as the key for rows rendered from useFieldArray().fields.map().",
+    },
   },
   defaultOptions: [],
   create(context) {
-    const importInfo = getReactHookFormImportInfo(context.sourceCode.ast);
-    const fieldsBindings = new Set<string>();
-    const fieldArrayObjects = new Set<string>();
-
+    const code = context.sourceCode;
+    function roots(
+      node: TSESTree.Node,
+    ): Array<TSESTree.JSXElement | TSESTree.JSXFragment> {
+      node = ast.unwrap(node);
+      if (node.type === "JSXElement" || node.type === "JSXFragment")
+        return [node];
+      if (node.type === "ConditionalExpression")
+        return [...roots(node.consequent), ...roots(node.alternate)];
+      return [];
+    }
+    function returns(
+      node: TSESTree.Node,
+    ): Array<TSESTree.JSXElement | TSESTree.JSXFragment> {
+      if (node.type === "ReturnStatement")
+        return node.argument ? roots(node.argument) : [];
+      if (node.type === "BlockStatement") return node.body.flatMap(returns);
+      if (node.type === "IfStatement")
+        return [
+          ...returns(node.consequent),
+          ...(node.alternate ? returns(node.alternate) : []),
+        ];
+      return [];
+    }
     return {
-      VariableDeclarator(node) {
-        if (
-          node.init?.type !== "CallExpression" ||
-          !isReactHookFormCall(node.init.callee, importInfo, "useFieldArray")
-        ) {
-          return;
-        }
-
-        if (node.id.type === "Identifier") {
-          fieldArrayObjects.add(node.id.name);
-          return;
-        }
-
-        if (node.id.type !== "ObjectPattern") {
-          return;
-        }
-
-        for (const property of node.id.properties) {
-          if (
-            property.type !== "Property" ||
-            property.key.type !== "Identifier" ||
-            property.key.name !== "fields" ||
-            property.value.type !== "Identifier"
-          ) {
-            continue;
-          }
-
-          fieldsBindings.add(property.value.name);
-        }
-      },
       CallExpression(node) {
+        const member = ast.unwrap(node.callee);
         if (
-          !isTrackedFieldsMap(node.callee, fieldsBindings, fieldArrayObjects)
-        ) {
+          member.type !== "MemberExpression" ||
+          ast.propertyName(member.property, member.computed) !== "map"
+        )
           return;
-        }
-
-        const callback = node.arguments[0];
-
+        const fields = ast.origin(code, member.object);
         if (
-          callback == null ||
-          callback.type === "SpreadElement" ||
+          !ast.isHook(fields, ["useFieldArray"], ["fields"]) ||
+          fields.call?.type !== "CallExpression"
+        )
+          return;
+        const keyOption = ast.objectProperty(
+          code,
+          fields.call.arguments[0],
+          "keyName",
+        );
+        if (!keyOption.known) return;
+        let key = "id";
+        if (keyOption.value && !ast.isUndefined(code, keyOption.value)) {
+          const value = ast.valueExpression(code, keyOption.value);
+          if (value.type !== "Literal" || typeof value.value !== "string")
+            return;
+          key = value.value;
+        }
+        const callback = node.arguments[0];
+        if (
+          !callback ||
           (callback.type !== "ArrowFunctionExpression" &&
             callback.type !== "FunctionExpression") ||
-          callback.params[0]?.type !== "Identifier"
-        ) {
+          !callback.params[0]
+        )
           return;
+        const param = callback.params[0];
+        const indexParam = callback.params[1];
+        const item = param.type === "Identifier" ? param.name : "field";
+        const elements =
+          callback.body.type === "BlockStatement"
+            ? returns(callback.body)
+            : roots(callback.body);
+        function keyPath(
+          input: TSESTree.Node,
+          seen = new Set<TSESTree.Node>(),
+        ): string[] | null {
+          const value = ast.valueExpression(code, input);
+          if (seen.has(value)) return null;
+          const nextSeen = new Set(seen).add(value);
+          if (value.type === "MemberExpression") {
+            const base = keyPath(value.object, nextSeen);
+            const property = ast.propertyName(value.property, value.computed);
+            return base && property !== null ? [...base, property] : null;
+          }
+          if (value.type !== "Identifier") return null;
+          const variable = ast.variableAt(code, value, value.name);
+          const def = variable?.defs[0];
+          if (def?.type === "Parameter" && def.node === callback)
+            return ast.bindingPath(param, value.name);
+          if (def?.type === "Variable" && def.node.init) {
+            const base = keyPath(def.node.init, nextSeen);
+            const path = ast.bindingPath(def.node.id, value.name);
+            return base && path ? [...base, ...path] : null;
+          }
+          return null;
         }
-
-        const openingElement = getReturnedOpeningElement(callback);
-
-        if (openingElement == null) {
-          return;
+        function incorrectKey(input: TSESTree.Node): boolean {
+          const path = keyPath(input);
+          if (path) return path.length !== 1 || path[0] !== key;
+          const value = ast.valueExpression(code, input);
+          if (value.type === "Literal") return true;
+          // The second map parameter is an index, even when aliased.
+          if (value.type === "Identifier" && indexParam?.type === "Identifier")
+            return (
+              ast.variableAt(code, value, value.name) ===
+              ast.variableAt(code, indexParam, indexParam.name)
+            );
+          return false;
         }
-
-        const keyExpression = getKeyExpression(openingElement);
-
-        if (
-          keyExpression == null ||
-          isFieldIdExpression(keyExpression, callback.params[0].name)
-        ) {
-          return;
+        for (const element of elements) {
+          if (element.type === "JSXFragment") {
+            context.report({
+              node: element.openingFragment,
+              messageId: "useFieldIdKey",
+              data: { item, key },
+            });
+            continue;
+          }
+          const prop = ast.jsxProperty(code, element.openingElement, "key");
+          if (!prop.known || (prop.value && !incorrectKey(prop.value)))
+            continue;
+          context.report({
+            node: prop.node ?? element.openingElement,
+            messageId: "useFieldIdKey",
+            data: { item, key },
+          });
         }
-
-        context.report({
-          node: keyExpression,
-          messageId: "useFieldIdKey",
-          data: {
-            item: callback.params[0].name,
-          },
-        });
       },
     };
   },
