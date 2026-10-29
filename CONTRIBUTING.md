@@ -42,6 +42,8 @@ Only esbuild's installation script is allowed through `pnpm-workspace.yaml`. Run
 | `pnpm smoke:pack`                        | Install a tarball in an isolated consumer and verify contents, ESM/CJS, declarations, and linting |
 | `pnpm security:audit`                    | Audit dependencies at moderate severity or higher                                                 |
 
+Coverage reports are retained as CI artifacts. On successful main-branch checks, CI uploads the Node 24 LCOV report to [Codecov using GitHub OIDC](https://github.com/codecov/codecov-action#using-oidc), which updates the README coverage badge without a stored upload token. Local coverage thresholds remain enforced even if the reporting service is unavailable.
+
 Run a focused test while iterating:
 
 ```sh

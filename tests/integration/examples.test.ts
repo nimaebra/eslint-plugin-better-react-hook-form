@@ -87,7 +87,7 @@ it("lints JSX and TSX with every README flat-config recipe", async () => {
   const markdown = readFileSync("README.md", "utf8");
   const snippets = [...markdown.matchAll(/```(js|cjs)\n([\s\S]*?)```/g)].filter(
     (match) =>
-      match[2].includes("flatConfigs") &&
+      match[2].includes('"eslint-plugin-better-react-hook-form"') &&
       (match[2].includes("export default") ||
         match[2].includes("module.exports")),
   );

@@ -33,6 +33,28 @@ jobs:
         with:
           name: coverage
           path: coverage/lcov.info
+  coverage:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v8
+        with:
+          name: coverage
+          path: coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          files: ./coverage/lcov.info
+          disable_search: true
+          use_oidc: true
+          fail_ci_if_error: false
   compatibility:
     runs-on: ubuntu-latest
     strategy:

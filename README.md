@@ -1,121 +1,16 @@
 # eslint-plugin-better-react-hook-form
 
-ESLint rules for safer, more maintainable React Hook Form usage.
+[![npm version](https://img.shields.io/npm/v/eslint-plugin-better-react-hook-form.svg)](https://www.npmjs.com/package/eslint-plugin-better-react-hook-form)
+[![CI](https://github.com/nimaebra/eslint-plugin-better-react-hook-form/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/nimaebra/eslint-plugin-better-react-hook-form/actions/workflows/ci.yml)
+[![code coverage](https://codecov.io/gh/nimaebra/eslint-plugin-better-react-hook-form/branch/main/graph/badge.svg)](https://codecov.io/gh/nimaebra/eslint-plugin-better-react-hook-form)
+[![license](https://img.shields.io/npm/l/eslint-plugin-better-react-hook-form.svg)](LICENSE)
+[![Node.js version](https://img.shields.io/node/v/eslint-plugin-better-react-hook-form.svg)](https://www.npmjs.com/package/eslint-plugin-better-react-hook-form)
 
-Catch double registration, incorrect field-array keys, ignored value transforms, and other documented RHF mistakes. The recommended preset focuses on correctness; stricter subscription and sequencing advice is opt-in.
+[ESLint](https://eslint.org/) rules for safer, more maintainable [React Hook Form](https://react-hook-form.com/) usage.
 
-## Compatibility
+`eslint-plugin-better-react-hook-form` helps catch double registration, incorrect field-array keys, ignored value transforms, and other documented React Hook Form mistakes.
 
-| Dependency      | Supported versions       |
-| :-------------- | :----------------------- |
-| Node.js         | `^22.13.0 \|\| >=24.0.0` |
-| ESLint          | `^9.0.0 \|\| ^10.0.0`    |
-| React Hook Form | `>=7.55.0 <8`            |
-
-RHF is an optional peer dependency: the plugin does not import or execute your form library. Applications must use the supported RHF range for the rules' guidance to apply. RHF v8 beta is not supported yet; its field-array identifiers and payload semantics differ.
-
-JavaScript projects do not need a TypeScript parser. TypeScript/TSX projects should configure `typescript-eslint`. No rule requires type-aware linting.
-
-## Installation
-
-```sh
-npm install --save-dev eslint eslint-plugin-better-react-hook-form
-# or
-pnpm add -D eslint eslint-plugin-better-react-hook-form
-```
-
-## Flat configuration
-
-ESLint 9 and 10:
-
-```js
-// eslint.config.mjs
-import betterReactHookForm from "eslint-plugin-better-react-hook-form";
-
-export default [
-  ...betterReactHookForm.flatConfigs.recommended,
-  {
-    files: ["**/*.{js,jsx}"],
-    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
-  },
-];
-```
-
-The JSX configuration above matches `.jsx` files and enables JSX parsing in JavaScript. The plugin presets provide rules; configure file matching and your project's parser explicitly.
-
-For TypeScript and TSX, install `typescript` and `typescript-eslint` as development dependencies:
-
-```js
-import tseslint from "typescript-eslint";
-import betterReactHookForm from "eslint-plugin-better-react-hook-form";
-
-export default [
-  ...tseslint.configs.recommended,
-  ...betterReactHookForm.flatConfigs.recommended,
-  {
-    files: ["**/*.{ts,tsx}"],
-    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
-  },
-];
-```
-
-Enable `flatConfigs.strict` for the additional warnings or `flatConfigs.all` to evaluate every rule. Flat presets are arrays. The existing `configs["flat/recommended"]` object remains available as an alias.
-
-## Legacy configuration
-
-Legacy configuration is supported with ESLint 9 and `ESLINT_USE_FLAT_CONFIG=false`. ESLint 10 requires flat configuration.
-
-```js
-// .eslintrc.cjs
-module.exports = {
-  extends: ["plugin:better-react-hook-form/recommended"],
-};
-```
-
-Legacy presets are `recommended`, `strict`, and `all` under `plugin.configs`.
-
-## Presets and overrides
-
-| Preset        | Purpose                                                                                             |
-| :------------ | :-------------------------------------------------------------------------------------------------- |
-| `recommended` | Seven correctness checks as errors; deprecated callbacks and nested providers as warnings.          |
-| `strict`      | Recommended plus warnings for consecutive field-array actions and context form-state subscriptions. |
-| `all`         | Every rule as an error. New rules can join this preset in minor releases.                           |
-
-See [exact preset membership](docs/configs.md). To enable individual rules or override a preset:
-
-```js
-import betterReactHookForm from "eslint-plugin-better-react-hook-form";
-
-export default [
-  ...betterReactHookForm.flatConfigs.recommended,
-  {
-    files: ["**/*.{js,jsx}"],
-    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
-    rules: {
-      "better-react-hook-form/no-nested-form-provider": "off",
-      "better-react-hook-form/no-stacked-usefieldarray-actions": "warn",
-    },
-  },
-];
-```
-
-The default export is the plugin. Named `rules`, `configs`, and `flatConfigs` exports and configuration types are also available. TypeScript consumers need TypeScript 5.3 or later; declarations for early ESLint 9 versions are included as a dependency.
-
-CommonJS flat configuration can use the default export:
-
-```cjs
-// eslint.config.cjs
-const betterReactHookForm =
-  require("eslint-plugin-better-react-hook-form").default;
-module.exports = [
-  ...betterReactHookForm.flatConfigs.recommended,
-  {
-    files: ["**/*.{js,jsx}"],
-    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
-  },
-];
-```
+The plugin ships with flat-config and legacy-config presets, plus individual rules you can enable as needed. The recommended preset focuses on correctness; stricter subscription and sequencing advice is opt-in.
 
 ## Rules
 
@@ -144,7 +39,143 @@ module.exports = [
 
 <!-- end auto-generated rules list -->
 
-## Supported patterns and limitations
+Every rule has its own documentation page under [docs/rules](docs/rules).
+
+## Installation
+
+```sh
+npm install --save-dev eslint eslint-plugin-better-react-hook-form
+# or
+pnpm add -D eslint eslint-plugin-better-react-hook-form
+```
+
+| Dependency      | Supported versions       |
+| :-------------- | :----------------------- |
+| Node.js         | `^22.13.0 \|\| >=24.0.0` |
+| ESLint          | `^9.0.0 \|\| ^10.0.0`    |
+| React Hook Form | `>=7.55.0 <8`            |
+
+React Hook Form is an optional peer dependency: shared ESLint config packages do not need to install it. The rules inspect source code without loading React Hook Form at runtime. Applications must use the supported range for the rules' guidance to apply. RHF v8 beta is not supported yet; its field-array identifiers and payload semantics differ.
+
+## Flat Config
+
+For ESLint 9 and 10:
+
+```js
+// eslint.config.mjs
+import betterReactHookForm from "eslint-plugin-better-react-hook-form";
+
+export default [
+  ...betterReactHookForm.flatConfigs.recommended,
+  {
+    files: ["**/*.{js,jsx}"],
+    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+  },
+];
+```
+
+Use `flatConfigs.strict` for additional warnings or `flatConfigs.all` to evaluate every rule. Flat presets are arrays. Configure file matching and your project's parser explicitly; the example above includes `.jsx` files and enables JSX parsing in JavaScript.
+
+### CommonJS
+
+The default export is also available to CommonJS consumers:
+
+```cjs
+// eslint.config.cjs
+const betterReactHookForm =
+  require("eslint-plugin-better-react-hook-form").default;
+
+module.exports = [
+  ...betterReactHookForm.flatConfigs.recommended,
+  {
+    files: ["**/*.{js,jsx}"],
+    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+  },
+];
+```
+
+## Legacy Config
+
+Legacy configuration is supported with ESLint 9 and `ESLINT_USE_FLAT_CONFIG=false`. ESLint 10 requires flat configuration.
+
+```js
+// .eslintrc.cjs
+module.exports = {
+  extends: ["plugin:better-react-hook-form/recommended"],
+};
+```
+
+Available legacy presets are:
+
+- `plugin:better-react-hook-form/recommended`
+- `plugin:better-react-hook-form/strict`
+- `plugin:better-react-hook-form/all`
+
+## TypeScript Projects
+
+JavaScript consumers do not need a TypeScript parser. If you lint TypeScript or TSX, install `typescript` and `typescript-eslint` as development dependencies and compose their configuration with this plugin:
+
+```js
+import tseslint from "typescript-eslint";
+import betterReactHookForm from "eslint-plugin-better-react-hook-form";
+
+export default [
+  ...tseslint.configs.recommended,
+  ...betterReactHookForm.flatConfigs.recommended,
+  {
+    files: ["**/*.{ts,tsx}"],
+    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+  },
+];
+```
+
+No rule requires type-aware linting. TypeScript consumers need TypeScript 5.3 or later; declarations for early ESLint 9 versions are included as a dependency.
+
+## Config Presets
+
+| Preset        | Intended use                                          | Notes                                                                                                        |
+| :------------ | :---------------------------------------------------- | :----------------------------------------------------------------------------------------------------------- |
+| `recommended` | Good default for most codebases                       | Seven correctness checks as errors; deprecated callbacks and nested providers as warnings.                   |
+| `strict`      | Broader subscription and sequencing advice            | Includes recommended plus warnings for consecutive field-array actions and context form-state subscriptions. |
+| `all`         | Evaluating every rule, or opting into new rules early | Enables every rule as an error. New rules can join it in minor releases.                                     |
+
+See [docs/configs.md](docs/configs.md) for exact preset membership. The default export is the plugin; named `rules`, `configs`, `flatConfigs`, and configuration types are also available. The `configs["flat/recommended"]` object remains available as an alias.
+
+## Individual Rules
+
+To enable rules one by one, register the plugin and configure the rules you want:
+
+```js
+import betterReactHookForm from "eslint-plugin-better-react-hook-form";
+
+export default [
+  {
+    files: ["**/*.{js,jsx}"],
+    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+    plugins: {
+      "better-react-hook-form": betterReactHookForm,
+    },
+    rules: {
+      "better-react-hook-form/no-double-register": "error",
+      "better-react-hook-form/no-register-bracket-syntax": "warn",
+    },
+  },
+];
+```
+
+To override a preset, place your `rules` configuration after the preset. Set a rule to `"off"` to disable it.
+
+## Examples
+
+Working example setups live in this repository:
+
+- [examples/flat](examples/flat): JavaScript with the recommended flat preset.
+- [examples/legacy](examples/legacy): ESLint 9 legacy configuration.
+- [examples/typescript](examples/typescript): TypeScript and TSX configuration.
+
+Each setup includes valid and intentionally invalid fixtures. The [shared rule cases](examples/rule-cases.json) exercise every rule through all three presets.
+
+## Supported Patterns and Limitations
 
 Rules resolve named imports, namespace imports, lexical scopes, and immutable local aliases. Unrelated identifiers and shadowed bindings are ignored. Analysis is local to a file: custom hook wrappers, values imported from other files, unknown spreads, and arbitrary runtime control flow may not be provable. These cases are skipped rather than guessed.
 
@@ -154,15 +185,12 @@ Only unambiguous literal bracket-path conversions receive automatic fixes. Chang
 
 The plugin targets documented API mistakes, not temporary library bugs. The [rule rationale and roadmap](docs/rule-audit.md) explains rule decisions, upstream evidence, and future improvements.
 
-## Development and contributing
+## Contributing
 
-```sh
-nvm use
-corepack enable
-pnpm install
-pnpm check
-```
+Contributor setup, checks, and rule authoring live in [CONTRIBUTING.md](CONTRIBUTING.md). See [Git conventions](CONTRIBUTING.md#git-conventions) for branch names, Conventional Commits, PR titles, and releases.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, rules, tests, Git conventions, and releases. Runnable fixtures live under [examples](examples). Report reproducible issues through [GitHub Issues](https://github.com/nimaebra/eslint-plugin-better-react-hook-form/issues); report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
+Report reproducible bugs through [GitHub Issues](https://github.com/nimaebra/eslint-plugin-better-react-hook-form/issues). Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
-MIT licensed. This is an independent community plugin, not an official React Hook Form project.
+## License
+
+[MIT](LICENSE). This is an independent community plugin, not an official React Hook Form project.
