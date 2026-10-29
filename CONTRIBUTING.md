@@ -82,17 +82,41 @@ Optional local hooks can be enabled with `pnpm hooks:install`. This changes this
 
 ## Changesets and releases
 
-The initial unpublished version remains 0.1.0. For subsequent public behavior changes, add a changeset with `pnpm changeset`. Internal-only documentation, tooling, or tests need no package bump unless they affect consumers. Generated version PRs use `chore(release): release packages`.
+For public behavior changes, add a changeset with `pnpm changeset`. Internal-only documentation, tooling, or tests need no package bump unless they affect consumers. Generated version PRs use `chore(release): release packages`.
 
 Ordinary pushes to main validate the package and maintain a Changesets version PR. They never publish npm packages, push release tags, or create GitHub releases. Merge a version PR before publishing its prepared version.
 
-Publishing requires a manual run of **Release** on `main` with **publish=true**. The workflow revalidates all checks and packaged consumers. With pending changesets it prepares a version PR instead; merge that PR and dispatch again. The initial 0.1.0 bootstrap uses the separate interactive procedure below. Repository preparation alone does not publish a package.
+Publishing requires a manual run of **Release** on `main` with **publish=true**. The workflow revalidates all checks and packaged consumers. With pending changesets it prepares a version PR instead; merge that PR and dispatch again.
 
-### First npm publication and trusted publishing
+### Release verification
+
+Use a clean main checkout and the pinned toolchain. Before publishing, run:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm check
+pnpm test:coverage
+pnpm security:audit
+pnpm audit --prod --audit-level=low
+```
+
+Coverage floors are 95% lines, 90% statements, 90% branches and 95% functions. The repository audit blocks moderate-or-higher advisories; the production audit blocks advisories at any severity.
+
+The Release workflow also checks the full ESLint/RHF compatibility matrix and TypeScript 5.3.3/6 consumers without RHF. To run the same package checks locally:
+
+```sh
+for eslint in 9.0.0 '^9' 10.0.0 '^10'; do
+  for rhf in 7.55.0 '^7'; do
+    pnpm smoke:pack --eslint-version "$eslint" --rhf-version "$rhf"
+  done
+done
+pnpm smoke:pack --typescript-version 5.3.3 --rhf-version none
+pnpm smoke:pack --typescript-version '^6' --rhf-version none
+```
+
+### Trusted publishing
 
 The GitHub repository must be public, and `package.json` must point to `nimaebra/eslint-plugin-better-react-hook-form`. npm trusted publishing requires npm >=11.5.1 and a matching publisher configuration. See the [official npm guide](https://docs.npmjs.com/trusted-publishers/).
-
-npm requires an existing package before configuring trust. Bootstrap the first version from a clean, verified main checkout using your authenticated npm account and 2FA. Run `pnpm security:audit`, `pnpm check`, coverage, the production audit, and the complete consumer matrix, then `npm publish --access public --provenance=false`. Local bootstrap has no CI provenance; subsequent GitHub OIDC releases provide provenance. Do not create or store an npm token in this repository. The publishing account must complete interactive login and 2FA. Authentication or a name conflict stops publication; do not rename the package automatically.
 
 Configure the trusted publisher immediately before the next genuine workflow publication. A new configuration expires unless its first successful publish occurs within two days. OIDC needs Node >=22.14.0 and npm >=11.5.1; the pinned Node 24 environment satisfies this.
 
@@ -105,10 +129,10 @@ Configure the trusted publisher immediately before the next genuine workflow pub
 | Environment       | Leave blank; the workflow uses no named environment |
 | Permission        | Allow direct `npm publish`                          |
 
-The workflow uses GitHub-hosted runners with `id-token: write` and disables release dependency caching. No `NPM_TOKEN` is needed for OIDC. Enable GitHub Actions permission to create pull requests for Changesets. A successful publication creates the matching GitHub release/tag; re-running does not republish an existing version. After the initial publication, install `eslint-plugin-better-react-hook-form@0.1.0` into fresh consumers, verify the registry metadata and package integrity, and create the matching `v0.1.0` GitHub tag/release at the verified commit. Record that commit and integrity in the release notes. If publication returns an ambiguous network error, inspect the registry before retrying; published versions cannot be overwritten.
+The workflow uses GitHub-hosted runners with `id-token: write` and disables release dependency caching. No `NPM_TOKEN` is needed for OIDC. Enable GitHub Actions permission to create pull requests for Changesets. A successful publication creates the matching GitHub release/tag; re-running does not republish an existing version. After publishing, verify registry metadata and package integrity and test the published version in fresh consumers. Record the release commit and integrity in the release notes. If publication returns an ambiguous network error, inspect the registry before retrying; published versions cannot be overwritten.
 
 `@types/eslint` is intentionally exempted from Knip: modern ESLint provides its own declarations, while the installed ESLint 9.0.0 consumer proves the fallback dependency is needed.
 
 The smoke script supports `--package-spec eslint-plugin-better-react-hook-form@0.1.0` to verify the actual registry tarball, `--typescript-version 5.3.3` for the minimum compiler, and `--rhf-version none` to verify the optional peer. It checks declarations without `skipLibCheck` and exercises all eleven rules through every flat preset in JSX/TSX and legacy `all` on ESLint 9.
 
-See [release readiness](docs/release-readiness.md) for the audit, acceptance gates, and future work.
+See the [rule rationale and roadmap](docs/rule-audit.md) for rule decisions and future work.

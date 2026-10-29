@@ -152,7 +152,7 @@ Only unambiguous literal bracket-path conversions receive automatic fixes. Chang
 
 `watch()` and direct `formState` reads are valid APIs. With React Compiler, follow RHF's [watch guidance](https://react-hook-form.com/docs/useform/watch): use `useWatch` or opt out of compilation with `"use no memo"` where appropriate. Read the state you need during render to establish subscriptions; destructuring is useful but is not universally required.
 
-The plugin targets documented API mistakes, not temporary library bugs. The [rule audit](docs/rule-audit.md) explains removed rules and upstream evidence. The [release-readiness audit and roadmap](docs/release-readiness.md) records the original plan, release gates, and the next rule batch.
+The plugin targets documented API mistakes, not temporary library bugs. The [rule rationale and roadmap](docs/rule-audit.md) explains rule decisions, upstream evidence, and future improvements.
 
 ## Development and contributing
 
