@@ -8,5 +8,5 @@ export interface BetterReactHookFormDocs {
 
 export const createRule = ESLintUtils.RuleCreator<BetterReactHookFormDocs>(
   (name) =>
-    `https://github.com/nimaebrazeh/eslint-plugin-better-react-hook-form/blob/main/docs/rules/${name}.md`,
+    `https://github.com/nimaebra/eslint-plugin-better-react-hook-form/blob/main/docs/rules/${name}.md`,
 );

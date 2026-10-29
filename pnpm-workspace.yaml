@@ -1,0 +1,9 @@
+allowBuilds:
+  esbuild: true
+
+# Keep transitive tooling/runtime utilities on the patched versions from npm audit.
+overrides:
+  "brace-expansion@>=5.0.0 <5.0.12": ^5.0.12
+  "fast-uri@>=3.0.0 <3.1.9": ^3.1.9
+  "js-yaml@>=4.0.0 <4.3.2": ^4.3.2
+  "source-map-js@>=1.0.0 <1.2.2": ^1.2.2

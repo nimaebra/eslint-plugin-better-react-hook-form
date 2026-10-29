@@ -1,46 +1,38 @@
 # better-react-hook-form/no-form-methods-object-in-deps
 
-📝 Disallow useForm() and useFormContext() method objects in React hook dependency arrays.
+📝 Disallow whole form method objects in React hook dependency arrays.
 
-💼 This rule is enabled in the ✅ `recommended` config.
+💼 This rule is enabled in the following configs: 🌐 `all`, ✅ `recommended`, 🔒 `strict`.
 
 <!-- end auto-generated rule header -->
 
-Avoid depending on the entire object returned by `useForm()` or `useFormContext()`.
+Depend on the individual methods used by an imported React hook instead of the entire form methods object.
 
-## Rule Details
+## Rule details
 
-React Hook Form documents that putting the full methods object into a React hook dependency array is unsafe because the object may be memoized differently in a future release.
-Depend on the specific method you use instead, such as `reset`.
-
-## Examples
-
-Examples of **incorrect** code for this rule:
+Incorrect:
 
 ```tsx
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-
-function Example() {
-  const methods = useForm();
-
-  useEffect(() => {
-    methods.reset({ firstName: "Ada" });
-  }, [methods]);
-}
+const methods = useForm();
+useEffect(() => methods.reset(), [methods]);
 ```
 
-Examples of **correct** code for this rule:
+Correct:
 
 ```tsx
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-
-function Example() {
-  const { reset } = useForm();
-
-  useEffect(() => {
-    reset({ firstName: "Ada" });
-  }, [reset]);
-}
+const { reset } = useForm();
+useEffect(() => reset(), [reset]);
 ```
+
+The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
+
+## Limitations and fixes
+
+Checks imported useEffect, useLayoutEffect, useMemo, and useCallback, including React namespace/default members and aliases. The separate formState object is a valid dependency. Unrelated hooks are ignored. No automatic fix rewrites closures or dependency lists.
+
+All analysis is local to a file and resolves lexical bindings. Uncertain relationships are skipped. No type information is required.
+
+## Sources
+
+- [RHF formprovider](https://react-hook-form.com/docs/formprovider)
+- [RHF useform](https://react-hook-form.com/docs/useform)

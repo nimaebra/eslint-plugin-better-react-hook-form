@@ -1,156 +1,65 @@
 import type { TSESTree } from "@typescript-eslint/utils";
-
 import { createRule } from "../utils/createRule.js";
-import {
-  getReactHookFormImportInfo,
-  isReactHookFormCall,
-} from "../utils/reactHookFormImports.js";
+import * as ast from "../utils/bindings.js";
 
-type MessageIds = "avoidStackingActions";
-type Options = [];
-type ActionName =
-  | "append"
-  | "insert"
-  | "move"
-  | "prepend"
-  | "remove"
-  | "replace"
-  | "swap"
-  | "update";
-
-const actionNames = new Set<ActionName>([
-  "append",
-  "insert",
-  "move",
-  "prepend",
-  "remove",
-  "replace",
-  "swap",
-  "update",
-]);
-
-function getTrackedActionName(
-  callee: TSESTree.CallExpression["callee"],
-  actionBindings: ReadonlyMap<string, ActionName>,
-  fieldArrayObjects: ReadonlySet<string>,
-): ActionName | null {
-  if (callee.type === "Identifier") {
-    return actionBindings.get(callee.name) ?? null;
-  }
-
-  if (
-    callee.type === "MemberExpression" &&
-    !callee.computed &&
-    callee.object.type === "Identifier" &&
-    callee.property.type === "Identifier" &&
-    fieldArrayObjects.has(callee.object.name) &&
-    actionNames.has(callee.property.name as ActionName)
-  ) {
-    return callee.property.name as ActionName;
-  }
-
-  return null;
-}
-
-export default createRule<Options, MessageIds>({
+export default createRule<[], "avoidStackingActions">({
   name: "no-stacked-usefieldarray-actions",
   meta: {
-    type: "problem",
+    type: "suggestion",
     docs: {
-      description:
-        "disallow stacking multiple useFieldArray() actions in the same synchronous block.",
-      recommended: true,
+      description: "disallow consecutive actions on the same field array.",
+      recommended: false,
       requiresTypeChecking: false,
-      url: "https://github.com/nimaebrazeh/eslint-plugin-better-react-hook-form/blob/main/docs/rules/no-stacked-usefieldarray-actions.md",
-    },
-    messages: {
-      avoidStackingActions:
-        "Avoid stacking multiple useFieldArray() actions in the same synchronous block. Move {{action}}() into a later render/effect or a separate callback.",
     },
     schema: [],
+    messages: {
+      avoidStackingActions:
+        "Avoid stacking multiple actions on the same useFieldArray() instance. Move {{action}}() into a later render/effect or a separate callback.",
+    },
   },
   defaultOptions: [],
   create(context) {
-    const importInfo = getReactHookFormImportInfo(context.sourceCode.ast);
-    const actionBindings = new Map<string, ActionName>();
-    const fieldArrayObjects = new Set<string>();
+    const code = context.sourceCode;
 
+    const actions = new Set([
+      "append",
+      "prepend",
+      "insert",
+      "remove",
+      "swap",
+      "move",
+      "update",
+      "replace",
+    ]);
     return {
-      VariableDeclarator(node) {
-        if (
-          node.init?.type !== "CallExpression" ||
-          !isReactHookFormCall(node.init.callee, importInfo, "useFieldArray")
-        ) {
-          return;
-        }
-
-        if (node.id.type === "Identifier") {
-          fieldArrayObjects.add(node.id.name);
-          return;
-        }
-
-        if (node.id.type !== "ObjectPattern") {
-          return;
-        }
-
-        for (const property of node.id.properties) {
-          if (
-            property.type !== "Property" ||
-            property.key.type !== "Identifier" ||
-            !actionNames.has(property.key.name as ActionName) ||
-            property.value.type !== "Identifier"
-          ) {
-            continue;
-          }
-
-          actionBindings.set(
-            property.value.name,
-            property.key.name as ActionName,
-          );
-        }
-      },
-      BlockStatement(node) {
-        const trackedCalls: Array<{
-          actionName: ActionName;
-          callExpression: TSESTree.CallExpression;
-        }> = [];
-
+      "BlockStatement:exit"(node) {
+        const seen = new Set<TSESTree.Node>();
         for (const statement of node.body) {
+          const call =
+            statement.type === "ExpressionStatement"
+              ? ast.unwrap(statement.expression)
+              : null;
+          const binding =
+            call?.type === "CallExpression"
+              ? ast.origin(code, call.callee)
+              : null;
           if (
-            statement.type !== "ExpressionStatement" ||
-            statement.expression.type !== "CallExpression"
+            !call ||
+            !binding?.call ||
+            binding.path.length !== 1 ||
+            !actions.has(binding.path[0]) ||
+            !ast.isHook({ ...binding, path: [] }, ["useFieldArray"])
           ) {
+            seen.clear();
             continue;
           }
-
-          const actionName = getTrackedActionName(
-            statement.expression.callee,
-            actionBindings,
-            fieldArrayObjects,
-          );
-
-          if (actionName == null) {
-            continue;
-          }
-
-          trackedCalls.push({
-            actionName,
-            callExpression: statement.expression,
-          });
-        }
-
-        if (trackedCalls.length < 2) {
-          return;
-        }
-
-        for (const trackedCall of trackedCalls.slice(1)) {
-          context.report({
-            node: trackedCall.callExpression,
-            messageId: "avoidStackingActions",
-            data: {
-              action: trackedCall.actionName,
-            },
-          });
+          if (seen.has(binding.call))
+            context.report({
+              node: call,
+              messageId: "avoidStackingActions",
+              data: { action: binding.path[0] },
+            });
+          seen.add(binding.call);
         }
       },
     };

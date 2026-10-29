@@ -1,0 +1,17 @@
+name: Rule or feature proposal
+description: Propose a useful rule or improvement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and example
+      description: Show the code to report, valid alternatives, and possible false positives.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Upstream evidence
+      description: Link official React Hook Form documentation, releases, or recurring issues. State the affected versions.
+    validations:
+      required: true

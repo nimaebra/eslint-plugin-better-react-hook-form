@@ -1,41 +1,39 @@
 # better-react-hook-form/prefer-useformstate-over-formstate-context
 
-📝 Require useFormState() instead of formState subscriptions taken from useFormContext().
+📝 Require useFormState() for context form-state subscriptions.
 
-💼 This rule is enabled in the ✅ `recommended` config.
+💼⚠️ This rule is enabled in the 🌐 `all` config. This rule _warns_ in the 🔒 `strict` config.
 
 <!-- end auto-generated rule header -->
 
-Prefer `useFormState()` over subscribing to `formState` from `useFormContext()`.
+Prefer a focused useFormState subscription over consuming context formState. This optional performance/subscription advice is enabled as a warning in strict.
 
-## Rule Details
+## Rule details
 
-React Hook Form documents that components inside a `FormProvider` tree should use `useFormState()` when they need slices like `errors`, `isDirty`, `dirtyFields`, `touchedFields`, `isValid`, `isValidating`, or `validatingFields`.
-Reading those subscriptions from `useFormContext().formState` is broader and less explicit than the dedicated `useFormState()` hook.
-
-Examples of **incorrect** code for this rule:
+Incorrect:
 
 ```tsx
-import { useFormContext } from "react-hook-form";
-
-function Example() {
-  const {
-    formState: { errors },
-  } = useFormContext();
-
-  return errors.firstName?.message ?? null;
-}
+const {
+  formState: { errors },
+} = useFormContext();
 ```
 
-Examples of **correct** code for this rule:
+Correct:
 
 ```tsx
-import { useFormContext, useFormState } from "react-hook-form";
-
-function Example() {
-  const { control } = useFormContext();
-  const { errors } = useFormState({ control });
-
-  return errors.firstName?.message ?? null;
-}
+const { control } = useFormContext();
+const { errors } = useFormState({ control });
 ```
+
+The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
+
+## Limitations and fixes
+
+Checks errors, dirtyFields, isDirty, isValid, isValidating, touchedFields, and validatingFields from proven useFormContext origins. Other slices remain outside this initial check. This is advice rather than evidence of universally invalid code. No hook insertion or import automatic fix is offered.
+
+All analysis is local to a file and resolves lexical bindings. Uncertain relationships are skipped. No type information is required.
+
+## Sources
+
+- [RHF useformcontext](https://react-hook-form.com/docs/useformcontext)
+- [RHF useformstate](https://react-hook-form.com/docs/useformstate)

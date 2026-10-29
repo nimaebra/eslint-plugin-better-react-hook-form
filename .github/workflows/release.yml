@@ -1,48 +1,50 @@
 name: Release
-
 on:
   push:
-    branches:
-      - main
-
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the version already prepared on main (requires npm setup)
+        type: boolean
+        default: false
 permissions:
   contents: write
-  id-token: write
   pull-requests: write
-
+  id-token: write
+concurrency:
+  group: release-main
+  cancel-in-progress: false
 jobs:
   release:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
         with:
-          version: 10.33.4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
-          cache: pnpm
-          node-version: 22
+          node-version-file: .nvmrc
           registry-url: https://registry.npmjs.org
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build
-        run: pnpm build
-
-      - name: Validate generated docs
-        run: pnpm docs:check
-
-      - name: Create release PR or publish
-        uses: changesets/action@v1
+          package-manager-cache: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm security:audit && pnpm check
+      - name: Verify packaged consumers
+        run: |
+          pnpm smoke:pack --eslint-version '^9' --rhf-version 7.55.0
+          pnpm smoke:pack --eslint-version '^9' --rhf-version '^7'
+          pnpm smoke:pack --eslint-version '^10' --rhf-version 7.55.0
+          pnpm smoke:pack --eslint-version '^10' --rhf-version '^7'
+      - name: Create version PR or explicitly publish
+        uses: changesets/action@v2
         with:
-          publish: pnpm publish --provenance --access public
-          version: pnpm version-packages
+          version-script: pnpm version-packages
+          publish-script: ${{ github.event_name == 'workflow_dispatch' && inputs.publish && github.ref == 'refs/heads/main' && 'pnpm release:publish' || '' }}
+          commit-message: "chore(release): release packages"
+          pr-title: "chore(release): release packages"
+          create-github-releases: ${{ github.event_name == 'workflow_dispatch' && inputs.publish && github.ref == 'refs/heads/main' }}
+          push-git-tags: ${{ github.event_name == 'workflow_dispatch' && inputs.publish && github.ref == 'refs/heads/main' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
