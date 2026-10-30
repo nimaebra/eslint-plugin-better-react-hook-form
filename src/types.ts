@@ -8,6 +8,7 @@ export interface RuleRegistryEntry {
   name: string;
   rule: TSESLint.RuleModule<string, unknown[], BetterReactHookFormDocs>;
   recommended?: "error" | "warn";
+  strict?: "error" | "warn";
 }
 export type FlatConfigMap = Record<PresetName, Linter.Config[]>;
 export type LegacyConfigMap = Record<PresetName, Linter.LegacyConfig>;

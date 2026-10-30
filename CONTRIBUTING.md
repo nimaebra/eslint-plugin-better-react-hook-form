@@ -64,7 +64,7 @@ pnpm smoke:pack --eslint-version '^10' --rhf-version '^7'
 Choose a documented API mistake with a useful, precise diagnostic. Link the official docs or recurring upstream evidence. Do not encode temporary library regressions or performance preferences as universal correctness failures. Review the [audit](docs/rule-audit.md) before proposing a rule.
 
 1. Add a rule through the shared `createRule` helper and use lexical binding resolution.
-2. Register it in the rule registry. Recommended severity is declared there; strict adds opt-in advice, and all includes every rule as an error.
+2. Register it in the rule registry. Declare recommended or strict-only severity explicitly; `strict` inherits recommended rules, and `all` includes every rule as an error. New v1 rules omit both severities so existing recommended/strict presets stay fixed.
 3. Add RuleTester coverage for valid/invalid usage, aliases, shadowing, reassignment, member calls, and unknown spreads as applicable.
 4. Add a rule document with rationale, examples, limitations, and primary-source links. Preserve generated header markers.
 5. Update examples for changed presets; regenerate docs with `pnpm docs:build` and run `pnpm check`.
@@ -139,6 +139,6 @@ The workflow uses GitHub-hosted runners with `id-token: write` and disables rele
 
 `@types/eslint` is intentionally exempted from Knip: modern ESLint provides its own declarations, while the installed ESLint 9.0.0 consumer proves the fallback dependency is needed.
 
-After publication, the smoke script supports `--package-spec eslint-plugin-better-react-hook-form@1.0.0` to verify the actual registry tarball against the checked-out version, `--typescript-version 5.3.3` for the minimum compiler, and `--rhf-version none` to verify the optional peer. It checks declarations without `skipLibCheck` and exercises all eleven rules through every flat preset in JSX/TSX and legacy `all` on ESLint 9.
+After publication, the smoke script supports `--package-spec eslint-plugin-better-react-hook-form@1.0.0` to verify the actual registry tarball against the checked-out version, `--typescript-version 5.3.3` for the minimum compiler, and `--rhf-version none` to verify the optional peer. It checks declarations without `skipLibCheck` and exercises every exported rule through every flat preset in JSX/TSX and legacy `all` on ESLint 9.
 
 See the [rule rationale and roadmap](docs/rule-audit.md) for rule decisions and future work.

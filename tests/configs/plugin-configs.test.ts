@@ -28,7 +28,41 @@ describe("plugin API", () => {
       "no-values-with-shouldunregister",
     ])
       expect(rules).not.toHaveProperty(name);
-    expect(Object.keys(rules)).toHaveLength(11);
+    expect(Object.keys(rules)).toHaveLength(14);
+  });
+  it("preserves the v1 recommended and strict presets when new rules are added", () => {
+    const recommended = {
+      "better-react-hook-form/no-conflicting-value-transforms": "error",
+      "better-react-hook-form/no-deprecated-watch-callback": "warn",
+      "better-react-hook-form/no-double-register": "error",
+      "better-react-hook-form/no-empty-usefieldarray-action": "error",
+      "better-react-hook-form/no-form-methods-object-in-deps": "error",
+      "better-react-hook-form/no-nested-form-provider": "warn",
+      "better-react-hook-form/no-register-bracket-syntax": "error",
+      "better-react-hook-form/no-undefined-controller-default-value": "error",
+      "better-react-hook-form/usefieldarray-require-field-id-key": "error",
+    };
+    expect(flatConfigs.recommended[0].rules).toEqual(recommended);
+    expect(flatConfigs.strict[0].rules).toEqual({
+      ...recommended,
+      "better-react-hook-form/no-stacked-usefieldarray-actions": "warn",
+      "better-react-hook-form/prefer-useformstate-over-formstate-context":
+        "warn",
+    });
+    for (const name of [
+      "no-undefined-set-value",
+      "no-undefined-controller-on-change",
+      "no-duplicate-usefieldarray",
+    ]) {
+      const id = `better-react-hook-form/${name}`;
+      expect(rules).toHaveProperty(name);
+      for (const preset of ["recommended", "strict"] as const) {
+        expect(flatConfigs[preset][0].rules).not.toHaveProperty(id);
+        expect(configs[preset].rules).not.toHaveProperty(id);
+      }
+      expect(flatConfigs.all[0].rules?.[id]).toBe("error");
+      expect(configs.all.rules?.[id]).toBe("error");
+    }
   });
   it("keeps correctness and optional advice separate", () => {
     const recommended = flatConfigs.recommended[0].rules!;

@@ -28,18 +28,23 @@ The plugin ships with flat-config and legacy-config presets, plus individual rul
 | [no-conflicting-value-transforms](docs/rules/no-conflicting-value-transforms.md)                       | disallow conflicting register value transforms.                          | 🌐 ✅ 🔒 |       |     |
 | [no-deprecated-watch-callback](docs/rules/no-deprecated-watch-callback.md)                             | disallow the deprecated watch(callback) overload and prefer subscribe(). | 🌐       | ✅ 🔒 |     |
 | [no-double-register](docs/rules/no-double-register.md)                                                 | disallow register() and Controller field props on the same element.      | 🌐 ✅ 🔒 |       |     |
+| [no-duplicate-usefieldarray](docs/rules/no-duplicate-usefieldarray.md)                                 | disallow duplicate field arrays for the same name and control.           | 🌐       |       |     |
 | [no-empty-usefieldarray-action](docs/rules/no-empty-usefieldarray-action.md)                           | require non-empty row values for useFieldArray actions.                  | 🌐 ✅ 🔒 |       |     |
 | [no-form-methods-object-in-deps](docs/rules/no-form-methods-object-in-deps.md)                         | disallow whole form method objects in React hook dependency arrays.      | 🌐 ✅ 🔒 |       |     |
 | [no-nested-form-provider](docs/rules/no-nested-form-provider.md)                                       | disallow nesting React Hook Form providers.                              | 🌐       | ✅ 🔒 |     |
 | [no-register-bracket-syntax](docs/rules/no-register-bracket-syntax.md)                                 | require dot syntax in register field paths.                              | 🌐 ✅ 🔒 |       | 🔧  |
 | [no-stacked-usefieldarray-actions](docs/rules/no-stacked-usefieldarray-actions.md)                     | disallow consecutive actions on the same field array.                    | 🌐       | 🔒    |     |
 | [no-undefined-controller-default-value](docs/rules/no-undefined-controller-default-value.md)           | disallow explicit undefined Controller defaults.                         | 🌐 ✅ 🔒 |       |     |
+| [no-undefined-controller-on-change](docs/rules/no-undefined-controller-on-change.md)                   | require a defined value for Controller field.onChange().                 | 🌐       |       |     |
+| [no-undefined-set-value](docs/rules/no-undefined-set-value.md)                                         | require a defined value argument for setValue().                         | 🌐       |       |     |
 | [prefer-useformstate-over-formstate-context](docs/rules/prefer-useformstate-over-formstate-context.md) | require useFormState() for context form-state subscriptions.             | 🌐       | 🔒    |     |
 | [usefieldarray-require-field-id-key](docs/rules/usefieldarray-require-field-id-key.md)                 | require the generated field-array identifier as each row's key.          | 🌐 ✅ 🔒 |       |     |
 
 <!-- end auto-generated rules list -->
 
 Every rule has its own documentation page under [docs/rules](docs/rules).
+
+The new `no-undefined-set-value`, `no-undefined-controller-on-change`, and `no-duplicate-usefieldarray` checks are individually opt-in and enabled in `all`. Existing `recommended` and `strict` presets retain their v1 rules and severities.
 
 ## Installation
 

@@ -10,6 +10,9 @@ import preferUseformstateOverFormstateContext from "./prefer-useformstate-over-f
 import usefieldarrayRequireFieldIdKey from "./usefieldarray-require-field-id-key.js";
 import noConflictingValueTransforms from "./no-conflicting-value-transforms.js";
 import noUndefinedControllerDefaultValue from "./no-undefined-controller-default-value.js";
+import noUndefinedSetValue from "./no-undefined-set-value.js";
+import noUndefinedControllerOnChange from "./no-undefined-controller-on-change.js";
+import noDuplicateUsefieldarray from "./no-duplicate-usefieldarray.js";
 
 export const ruleRegistry: readonly RuleRegistryEntry[] = [
   {
@@ -41,10 +44,12 @@ export const ruleRegistry: readonly RuleRegistryEntry[] = [
   {
     name: "no-stacked-usefieldarray-actions",
     rule: noStackedUsefieldarrayActions,
+    strict: "warn",
   },
   {
     name: "prefer-useformstate-over-formstate-context",
     rule: preferUseformstateOverFormstateContext,
+    strict: "warn",
   },
   {
     name: "usefieldarray-require-field-id-key",
@@ -61,6 +66,12 @@ export const ruleRegistry: readonly RuleRegistryEntry[] = [
     rule: noUndefinedControllerDefaultValue,
     recommended: "error",
   },
+  { name: "no-undefined-set-value", rule: noUndefinedSetValue },
+  {
+    name: "no-undefined-controller-on-change",
+    rule: noUndefinedControllerOnChange,
+  },
+  { name: "no-duplicate-usefieldarray", rule: noDuplicateUsefieldarray },
 ];
 export const rules = Object.fromEntries(
   ruleRegistry.map((entry) => [entry.name, entry.rule]),
@@ -71,7 +82,8 @@ export function presetRules(preset: PresetName) {
       const severity =
         preset === "all"
           ? "error"
-          : (entry.recommended ?? (preset === "strict" ? "warn" : undefined));
+          : (entry.recommended ??
+            (preset === "strict" ? entry.strict : undefined));
       return severity
         ? [[`better-react-hook-form/${entry.name}`, severity]]
         : [];

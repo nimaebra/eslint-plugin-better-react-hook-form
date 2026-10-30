@@ -1,4 +1,16 @@
 {
+  "no-undefined-set-value": {
+    "valid": "import {useForm} from 'react-hook-form';const {setValue}=useForm();setValue('name','');",
+    "invalid": "import {useForm} from 'react-hook-form';const {setValue}=useForm();setValue('name',undefined);"
+  },
+  "no-undefined-controller-on-change": {
+    "valid": "import {useController} from 'react-hook-form';const {field}=useController({name:'name'});field.onChange('');",
+    "invalid": "import {useController} from 'react-hook-form';const {field}=useController({name:'name'});field.onChange(undefined);"
+  },
+  "no-duplicate-usefieldarray": {
+    "valid": "import {useForm,useFieldArray} from 'react-hook-form';function Example(){const {control}=useForm();useFieldArray({control,name:'items'});useFieldArray({control,name:'users'});}",
+    "invalid": "import {useForm,useFieldArray} from 'react-hook-form';function Example(){const {control}=useForm();useFieldArray({control,name:'items'});useFieldArray({control,name:'items'});}"
+  },
   "no-conflicting-value-transforms": {
     "valid": "import {useForm} from 'react-hook-form';const {register}=useForm();register('age',{valueAsNumber:true});",
     "invalid": "import {useForm} from 'react-hook-form';const {register}=useForm();register('age',{valueAsNumber:true,setValueAs:v=>v});"
