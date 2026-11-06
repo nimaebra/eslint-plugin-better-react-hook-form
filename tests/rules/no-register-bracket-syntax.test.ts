@@ -15,6 +15,15 @@ const ruleTester = new RuleTester({
 ruleTester.run("no-register-bracket-syntax", rule, {
   valid: [
     {
+      name: "brackets used only inside a template interpolation are ignored",
+      code: [
+        'import { useForm } from "react-hook-form";',
+        "const { register } = useForm();",
+        "const indexes = [0];",
+        "register(`users.${indexes[0]}.name`);",
+      ].join("\n"),
+    },
+    {
       code: `
         import { useForm } from "react-hook-form";
 
@@ -45,6 +54,30 @@ ruleTester.run("no-register-bracket-syntax", rule, {
     },
   ],
   invalid: [
+    {
+      name: "quoted property segments are fixed while preserving single quotes",
+      code: `
+        import { useForm } from "react-hook-form";
+        const { register } = useForm();
+        register('contact["email"]');
+      `,
+      errors: [{ messageId: "avoidBracketSyntax" }],
+      output: `
+        import { useForm } from "react-hook-form";
+        const { register } = useForm();
+        register('contact.email');
+      `,
+    },
+    {
+      name: "a quoted property containing a dot is reported without a fix",
+      code: `
+        import { useForm } from "react-hook-form";
+        const { register } = useForm();
+        register('contact["email.work"]');
+      `,
+      errors: [{ messageId: "avoidBracketSyntax" }],
+      output: null,
+    },
     {
       code: `
         import { useForm } from "react-hook-form";

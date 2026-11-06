@@ -10,22 +10,27 @@ A Controller field already owns registration. Spreading register() on the same e
 
 ## Rule details
 
+The statements after the imports go inside a component or custom hook.
+
 Incorrect:
 
 ```tsx
-const { register } = useForm();
-const { field } = useController({ name: "email" });
+import { useController, useForm } from "react-hook-form";
+
+const { control, register } = useForm({ defaultValues: { email: "" } });
+const { field } = useController({ control, name: "email" });
 const input = <input {...field} {...register("email")} />;
 ```
 
 Correct:
 
 ```tsx
-const { field } = useController({ name: "email" });
+import { useController, useForm } from "react-hook-form";
+
+const { control } = useForm({ defaultValues: { email: "" } });
+const { field } = useController({ control, name: "email" });
 const input = <input {...field} />;
 ```
-
-The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
 
 ## Limitations and fixes
 

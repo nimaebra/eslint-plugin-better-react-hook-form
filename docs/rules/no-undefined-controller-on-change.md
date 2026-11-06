@@ -10,21 +10,47 @@ Controller's `field.onChange` requires a defined value or change event. Choose a
 
 ## Rule details
 
+Use the cleared value that matches the field. For a text input, pass an empty string from the clear action.
+
 Incorrect:
 
 ```tsx
-const { field } = useController({ name: "email", defaultValue: "" });
-field.onChange(undefined);
+import { useController, useForm } from "react-hook-form";
+
+function EmailField() {
+  const { control } = useForm({ defaultValues: { email: "" } });
+  const { field } = useController({ control, name: "email" });
+
+  return (
+    <>
+      <input {...field} />
+      <button type="button" onClick={() => field.onChange(undefined)}>
+        Clear
+      </button>
+    </>
+  );
+}
 ```
 
 Correct:
 
 ```tsx
-const { field } = useController({ name: "email", defaultValue: "" });
-field.onChange("");
-```
+import { useController, useForm } from "react-hook-form";
 
-The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
+function EmailField() {
+  const { control } = useForm({ defaultValues: { email: "" } });
+  const { field } = useController({ control, name: "email" });
+
+  return (
+    <>
+      <input {...field} />
+      <button type="button" onClick={() => field.onChange("")}>
+        Clear
+      </button>
+    </>
+  );
+}
+```
 
 ## Limitations and fixes
 

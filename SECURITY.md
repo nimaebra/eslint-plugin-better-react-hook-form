@@ -8,4 +8,6 @@ Relevant issues include unsafe autofixes, denial-of-service behavior while linti
 
 Release packages are checked in isolated consumers. GitHub OIDC publications use provenance. The [initial 0.1.0 release](https://github.com/nimaebra/eslint-plugin-better-react-hook-form/releases/tag/v0.1.0) was published locally without provenance. Ordinary pushes cannot publish a package.
 
-Run `pnpm security:audit` for the repository audit and `pnpm audit --prod --audit-level=low` for production dependencies. The October 29, 2026 audit found one [low-severity deepmerge advisory](https://github.com/advisories/GHSA-gcqx-w48m-w2h4) through the development-only documentation generator, with no patch available at that review. It does not affect the runtime dependency tree and is not suppressed. Recheck advisory status before each release.
+Run `pnpm security:audit` for the repository audit and `pnpm audit --prod --audit-level=low` for the production portion of the repository lockfile. The workspace override pins `minimatch` to 11.0.1 for the repository and CI. Audit a fresh installation of the release tarball separately because consumers resolve their own dependency tree. [minimatch advisory](https://github.com/advisories/GHSA-g3hv-75wg-m249)
+
+The November 6, 2026 review also found a low advisory for `deepmerge` through the development documentation generator. Recheck advisory status before each release. [deepmerge advisory](https://github.com/advisories/GHSA-gcqx-w48m-w2h4)

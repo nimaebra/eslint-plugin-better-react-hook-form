@@ -10,9 +10,13 @@ Prefer a focused useFormState subscription over consuming context formState. Thi
 
 ## Rule details
 
+The statements after the imports go inside a component or custom hook.
+
 Incorrect:
 
 ```tsx
+import { useFormContext } from "react-hook-form";
+
 const {
   formState: { errors },
 } = useFormContext();
@@ -21,11 +25,11 @@ const {
 Correct:
 
 ```tsx
+import { useFormContext, useFormState } from "react-hook-form";
+
 const { control } = useFormContext();
 const { errors } = useFormState({ control });
 ```
-
-The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
 
 ## Limitations and fixes
 

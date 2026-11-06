@@ -10,9 +10,13 @@ register applies one value conversion; setValueAs is ignored when valueAsNumber 
 
 ## Rule details
 
+The statements after the imports go inside a component or custom hook.
+
 Incorrect:
 
 ```tsx
+import { useForm } from "react-hook-form";
+
 const { register } = useForm();
 register("age", { valueAsNumber: true, setValueAs: (value) => Number(value) });
 ```
@@ -20,13 +24,13 @@ register("age", { valueAsNumber: true, setValueAs: (value) => Number(value) });
 Correct:
 
 ```tsx
+import { useForm } from "react-hook-form";
+
 const { register } = useForm();
 register("age", {
   setValueAs: (value) => (value === "" ? undefined : Number(value)),
 });
 ```
-
-The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
 
 ## Limitations and fixes
 
