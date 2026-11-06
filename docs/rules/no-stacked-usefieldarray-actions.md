@@ -10,9 +10,13 @@ RHF advises against consecutive actions on the same field array. This optional a
 
 ## Rule details
 
+The statements after the imports go inside a component or custom hook.
+
 Incorrect:
 
 ```tsx
+import { useFieldArray } from "react-hook-form";
+
 const { append, remove } = useFieldArray({ name: "users" });
 function handleAdd() {
   append({ name: "Ada" });
@@ -23,6 +27,8 @@ function handleAdd() {
 Correct:
 
 ```tsx
+import { useFieldArray } from "react-hook-form";
+
 const { append, remove } = useFieldArray({ name: "users" });
 function handleAdd() {
   append({ name: "Ada" });
@@ -31,8 +37,6 @@ function handleRemove() {
   remove(0);
 }
 ```
-
-The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
 
 ## Limitations and fixes
 

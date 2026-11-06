@@ -13,31 +13,43 @@ Nested RHF providers shadow the surrounding form context. This is a recommended 
 Incorrect:
 
 ```tsx
-const tree = (
-  <FormProvider>
-    <FormProvider>
-      <input />
+import { FormProvider, useForm } from "react-hook-form";
+
+function Forms() {
+  const account = useForm();
+  const preferences = useForm();
+
+  return (
+    <FormProvider {...account}>
+      <FormProvider {...preferences}>
+        <input />
+      </FormProvider>
     </FormProvider>
-  </FormProvider>
-);
+  );
+}
 ```
 
 Correct:
 
 ```tsx
-const tree = (
-  <>
-    <FormProvider>
-      <input />
-    </FormProvider>
-    <FormProvider>
-      <input />
-    </FormProvider>
-  </>
-);
-```
+import { FormProvider, useForm } from "react-hook-form";
 
-The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
+function Forms() {
+  const account = useForm();
+  const preferences = useForm();
+
+  return (
+    <>
+      <FormProvider {...account}>
+        <input />
+      </FormProvider>
+      <FormProvider {...preferences}>
+        <input />
+      </FormProvider>
+    </>
+  );
+}
+```
 
 ## Limitations and fixes
 

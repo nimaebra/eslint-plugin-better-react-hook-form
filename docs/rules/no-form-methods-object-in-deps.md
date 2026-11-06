@@ -10,9 +10,14 @@ Depend on the individual methods used by an imported React hook instead of the e
 
 ## Rule details
 
+The statements after the imports go inside a component or custom hook.
+
 Incorrect:
 
 ```tsx
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+
 const methods = useForm();
 useEffect(() => methods.reset(), [methods]);
 ```
@@ -20,11 +25,12 @@ useEffect(() => methods.reset(), [methods]);
 Correct:
 
 ```tsx
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+
 const { reset } = useForm();
 useEffect(() => reset(), [reset]);
 ```
-
-The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
 
 ## Limitations and fixes
 

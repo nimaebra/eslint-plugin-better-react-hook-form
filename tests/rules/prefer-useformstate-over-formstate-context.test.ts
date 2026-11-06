@@ -15,6 +15,16 @@ const ruleTester = new RuleTester({
 ruleTester.run("prefer-useformstate-over-formstate-context", rule, {
   valid: [
     {
+      name: "dynamic destructuring keys are skipped",
+      code: `
+        import { useFormContext } from "react-hook-form";
+        function Example({ key }) {
+          const { [key]: value, ...rest } = useFormContext().formState;
+          return value;
+        }
+      `,
+    },
+    {
       name: "register only from useFormContext",
       code: `
         import { useFormContext } from "react-hook-form";

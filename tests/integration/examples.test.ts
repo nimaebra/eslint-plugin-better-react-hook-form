@@ -153,9 +153,8 @@ describe("published rule documentation examples", () => {
           rules: { [id]: "error" },
         },
       });
-      const imports = `import {Controller,FormProvider,useController,useFieldArray,useForm,useFormContext,useFormState} from 'react-hook-form';import {useEffect,useLayoutEffect,useMemo,useCallback} from 'react';\n`;
       for (const [, kind, source] of examples) {
-        const [result] = await eslint.lintText(imports + source, {
+        const [result] = await eslint.lintText(source, {
           filePath: "documentation.tsx",
         });
         expect(result.messages.map((message) => message.ruleId)).toEqual(

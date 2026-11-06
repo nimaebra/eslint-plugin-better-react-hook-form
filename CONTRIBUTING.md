@@ -139,6 +139,13 @@ The workflow uses GitHub-hosted runners with `id-token: write` and disables rele
 
 `@types/eslint` is intentionally exempted from Knip: modern ESLint provides its own declarations, while the installed ESLint 9.0.0 consumer proves the fallback dependency is needed.
 
-After publication, the smoke script supports `--package-spec eslint-plugin-better-react-hook-form@1.0.0` to verify the actual registry tarball against the checked-out version, `--typescript-version 5.3.3` for the minimum compiler, and `--rhf-version none` to verify the optional peer. It checks declarations without `skipLibCheck` and exercises every exported rule through every flat preset in JSX/TSX and legacy `all` on ESLint 9.
+After publication, check out the release commit and smoke test the registry tarball for that version:
 
-See the [rule rationale and roadmap](docs/rule-audit.md) for rule decisions and future work.
+```sh
+version=$(node -p "require('./package.json').version")
+pnpm smoke:pack --package-spec "eslint-plugin-better-react-hook-form@$version" --typescript-version 5.3.3 --rhf-version none
+```
+
+The script checks declarations without `skipLibCheck` and exercises every exported rule through every flat preset in JSX/TSX. Pass `--eslint-version 9.0.0` to include the legacy `all` preset.
+
+See the [rule rationale](docs/rule-audit.md) for prior rule decisions.

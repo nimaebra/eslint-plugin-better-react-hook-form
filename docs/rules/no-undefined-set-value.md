@@ -10,21 +10,25 @@ React Hook Form requires the second argument of `setValue` to be present and def
 
 ## Rule details
 
+Inside a component, use a defined value when clearing a field from an event handler.
+
 Incorrect:
 
 ```tsx
+import { useForm } from "react-hook-form";
+
 const { setValue } = useForm();
-setValue("email", undefined);
+const clearEmail = () => setValue("email", undefined);
 ```
 
 Correct:
 
 ```tsx
-const { setValue } = useForm();
-setValue("email", "");
-```
+import { useForm } from "react-hook-form";
 
-The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
+const { setValue } = useForm();
+const clearEmail = () => setValue("email", "");
+```
 
 ## Limitations and fixes
 

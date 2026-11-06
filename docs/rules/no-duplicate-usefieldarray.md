@@ -13,6 +13,8 @@ Each `useFieldArray` instance owns its own field state and generated IDs. Multip
 Incorrect:
 
 ```tsx
+import { useFieldArray, useForm } from "react-hook-form";
+
 function Items() {
   const { control } = useForm();
   const editable = useFieldArray({ control, name: "items" });
@@ -24,14 +26,14 @@ function Items() {
 Correct:
 
 ```tsx
+import { useFieldArray, useForm } from "react-hook-form";
+
 function Items() {
   const { control } = useForm();
   const items = useFieldArray({ control, name: "items" });
   return null;
 }
 ```
-
-The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
 
 ## Limitations and fixes
 

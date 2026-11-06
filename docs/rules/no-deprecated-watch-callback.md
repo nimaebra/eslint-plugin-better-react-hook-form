@@ -6,29 +6,49 @@
 
 <!-- end auto-generated rule header -->
 
-Replace deprecated callback subscriptions with subscribe. This is a recommended warning. Ordinary watch(name), watch(names), and watch() remain valid.
+Use `subscribe` to observe changes without triggering a render. The callback overload of `watch` is deprecated. Continue using `watch(name)`, `watch(names)`, or `watch()` when rendering from watched values.
 
 ## Rule details
 
 Incorrect:
 
 ```tsx
-const { watch } = useForm();
-watch(() => console.log("changed"));
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+
+function Form() {
+  const { watch } = useForm();
+
+  useEffect(() => {
+    const { unsubscribe } = watch((values) => console.log(values));
+    return unsubscribe;
+  }, [watch]);
+
+  return null;
+}
 ```
 
 Correct:
 
 ```tsx
-const { subscribe } = useForm();
-const unsubscribe = subscribe({
-  formState: { values: true },
-  callback: ({ values }) => console.log(values),
-});
-// Call unsubscribe when the subscription is no longer needed.
-```
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
-The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
+function Form() {
+  const { subscribe } = useForm();
+
+  useEffect(
+    () =>
+      subscribe({
+        formState: { values: true },
+        callback: ({ values }) => console.log(values),
+      }),
+    [subscribe],
+  );
+
+  return null;
+}
+```
 
 ## Limitations and fixes
 

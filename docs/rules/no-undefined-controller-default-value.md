@@ -10,9 +10,13 @@ Controller defaults must have a defined value. A field-local default may be omit
 
 ## Rule details
 
+The statements after the imports go inside a component or custom hook.
+
 Incorrect:
 
 ```tsx
+import { Controller } from "react-hook-form";
+
 const input = (
   <Controller
     name="email"
@@ -25,6 +29,8 @@ const input = (
 Correct:
 
 ```tsx
+import { Controller, useForm } from "react-hook-form";
+
 const { control } = useForm({ defaultValues: { email: "" } });
 const input = (
   <Controller
@@ -34,8 +40,6 @@ const input = (
   />
 );
 ```
-
-The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
 
 ## Limitations and fixes
 

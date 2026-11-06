@@ -12,9 +12,13 @@ Use dot notation for field paths, matching the documented v7 TypeScript path con
 
 ## Rule details
 
+The statements after the imports go inside a component or custom hook.
+
 Incorrect:
 
 ```tsx
+import { useForm } from "react-hook-form";
+
 const { register } = useForm();
 register("users[0].name");
 ```
@@ -22,11 +26,11 @@ register("users[0].name");
 Correct:
 
 ```tsx
+import { useForm } from "react-hook-form";
+
 const { register } = useForm();
 register("users.0.name");
 ```
-
-The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
 
 ## Limitations and fixes
 

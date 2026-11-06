@@ -15,6 +15,19 @@ const ruleTester = new RuleTester({
 ruleTester.run("usefieldarray-require-field-id-key", rule, {
   valid: [
     {
+      name: "null branches are allowed when the returned row uses the configured key",
+      code: `
+        import { useFieldArray } from "react-hook-form";
+        function Example({ visible }) {
+          const { fields } = useFieldArray({ name: "contacts", keyName: "rowKey" });
+          return fields.map((field) => {
+            if (!visible) return;
+            return visible ? <input key={field.rowKey} /> : null;
+          });
+        }
+      `,
+    },
+    {
       name: "tracked fields keyed by field.id",
       code: `
         import { useFieldArray } from "react-hook-form";
@@ -64,6 +77,21 @@ ruleTester.run("usefieldarray-require-field-id-key", rule, {
     },
   ],
   invalid: [
+    {
+      name: "only the returned branch with an index key is reported",
+      code: `
+        import { useFieldArray } from "react-hook-form";
+        function Example({ editing }) {
+          const { fields } = useFieldArray({ name: "contacts", keyName: undefined });
+          return fields.map((field, index) => {
+            if (editing) return <input key={field.id} />;
+            else return <span key={index} />;
+          });
+        }
+      `,
+      errors: [{ messageId: "useFieldIdKey", line: 7 }],
+      output: null,
+    },
     {
       name: "index key in tracked fields map",
       code: `

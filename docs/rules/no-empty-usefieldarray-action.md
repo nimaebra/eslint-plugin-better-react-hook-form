@@ -10,9 +10,13 @@ Provide row data when appending, prepending, inserting, or updating a v7 field a
 
 ## Rule details
 
+The statements after the imports go inside a component or custom hook.
+
 Incorrect:
 
 ```tsx
+import { useFieldArray } from "react-hook-form";
+
 const { append } = useFieldArray({ name: "users" });
 append({});
 ```
@@ -20,11 +24,11 @@ append({});
 Correct:
 
 ```tsx
+import { useFieldArray } from "react-hook-form";
+
 const array = useFieldArray({ name: "users" });
 array.append({ name: "Ada" });
 ```
-
-The examples assume the corresponding hooks/components are imported from `react-hook-form` and React hooks from `react`.
 
 ## Limitations and fixes
 
